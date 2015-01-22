@@ -5,7 +5,8 @@ var config = require('./config'),
     favicon = require('serve-favicon'),
     logger = require('morgan'),
     cookieParser = require('cookie-parser'),
-    bodyParser = require('body-parser');
+    bodyParser = require('body-parser'),
+    mongoose = require('mongoose');
 
 var SpdyOptions = {
   key: config.ssl.key,
@@ -16,6 +17,16 @@ var SpdyOptions = {
 var routes = require('./routes.js');
 
 var app = express();
+
+// setting up Database
+app.db = mongoose.createConnection(config.mongodb.uri);
+app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
+app.db.once('open', function() {
+  console.log("Connected to mongodb " + config.mongodb.uri);
+});
+
+// loading Database's models
+require('./models')(app, mongoose);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
