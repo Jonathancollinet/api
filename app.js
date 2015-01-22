@@ -1,9 +1,17 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+var config = require('./config'),
+    express = require('express'),
+    spdy = require('spdy'),
+    path = require('path'),
+    favicon = require('serve-favicon'),
+    logger = require('morgan'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser');
+
+var SpdyOptions = {
+  key: config.ssl.key,
+  cert: config.ssl.certificate,
+  autoSpdy31: true
+};
 
 var routes = require('./routes.js');
 
@@ -57,10 +65,11 @@ app.use(function(err, req, res, next) {
 
 
 module.exports = app;
-var debug = require('debug')('website');
 
-app.set('port', process.env.PORT || 8080);
+app.set('port', config.port || process.env.PORT || 8080);
 
-var server = app.listen(app.get('port'), function() {
-  debug('Express server listening on port ' + server.address().port);
+var server = spdy.createServer(SpdyOptions, app);
+
+server.listen(app.get('port'), function() {
+  console.log('Server listening on https://localhost:' + server.address().port);
 });
