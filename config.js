@@ -28,3 +28,5 @@ exports.oauth = {
     scope: ['email', 'profil']
   }
 };
+
+exports.cookieSecret = 'asd1$-lk5D-^kl*6-/asd&#';
