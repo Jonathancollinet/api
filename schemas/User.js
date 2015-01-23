@@ -2,7 +2,7 @@
 
 exports = module.exports = function(app, mongoose) {
   var userSchema = new mongoose.Schema({
-    username: { type: String, unique: true },
+    username: { type: String },
     password: String,
     email: { type: String, unique: true },
     banned: { type: Boolean, default: false},
@@ -44,7 +44,7 @@ exports = module.exports = function(app, mongoose) {
   };
 
   userSchema.plugin(require('./plugins/pagedFind'));
-  userSchema.index({ username: 1 }, { unique: true });
+  // userSchema.index({ username: 1 }, { unique: true });
   userSchema.index({ email: 1 }, { unique: true });
   userSchema.index({ timeCreated: 1 });
   userSchema.index({ resetPasswordToken: 1 });
