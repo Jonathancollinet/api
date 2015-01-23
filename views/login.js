@@ -5,5 +5,5 @@ var request = require('request'),
     };
 
 exports.init = function(req, res) {
-  return res.json(JSON.parse(req.body));
+  return res.json(req.body);
 };
