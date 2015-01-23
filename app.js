@@ -5,7 +5,6 @@ var config = require('./config'),
     favicon = require('serve-favicon'),
     logger = require('morgan'),
     cookieParser = require('cookie-parser'),
-    cookieSession = require('cookie-session'),
     bodyParser = require('body-parser'),
     mongoose = require('mongoose');
 
