@@ -1,5 +1,5 @@
 exports.listAll = function(req, res) {
-	req.app.db.models.User.find().exec(function(err, row) {
+	req.app.db.models.User.find().populate("roles.account").exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
 		else
@@ -8,7 +8,7 @@ exports.listAll = function(req, res) {
 }
 
 exports.findOne = function(req, res) {
-	req.app.db.models.User.findOne().exec(function(err, row) {
+	req.app.db.models.User.findOne().populate("roles.account").exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
 		else
@@ -26,7 +26,7 @@ exports.count = function(req, res) {
 }
 
 exports.findId = function(req, res) {
-	req.app.db.models.User.findById(req.params.id).exec(function(err, row) {
+	req.app.db.models.User.findById(req.params.id).populate("roles.account").exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
 		else
@@ -37,7 +37,7 @@ exports.findId = function(req, res) {
 exports.exists = function(req, res) {
 	req.app.db.models.User.findById(req.params.id).exec(function(err, row) {
 		if (!err)
-			res.json({data: row});
+			res.json({data: true});
 		else
 			res.json({data: err});
 	});
