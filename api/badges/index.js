@@ -1,5 +1,5 @@
 exports.listAll = function(req, res) {
-	req.app.db.models.User.find().exec(function(err, row) {
+	req.app.db.models.Badge.find().exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
 		else
@@ -8,7 +8,7 @@ exports.listAll = function(req, res) {
 }
 
 exports.findOne = function(req, res) {
-	req.app.db.models.User.findOne().exec(function(err, row) {
+	req.app.db.models.Badge.findOne().exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
 		else
@@ -17,7 +17,7 @@ exports.findOne = function(req, res) {
 }
 
 exports.count = function(req, res) {
-	req.app.db.models.User.find().count().exec(function(err, row) {
+	req.app.db.models.Badge.find().count().exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
 		else
@@ -26,7 +26,7 @@ exports.count = function(req, res) {
 }
 
 exports.findId = function(req, res) {
-	req.app.db.models.User.findById(req.params.id).exec(function(err, row) {
+	req.app.db.models.Badge.findById(req.params.id).exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
 		else
@@ -35,7 +35,7 @@ exports.findId = function(req, res) {
 }
 
 exports.exists = function(req, res) {
-	req.app.db.models.User.findById(req.params.id).exec(function(err, row) {
+	req.app.db.models.Badge.findById(req.params.id).exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
 		else
@@ -44,7 +44,7 @@ exports.exists = function(req, res) {
 }
 
 exports.create = function(req, res) {
-	req.app.db.models.User.create(req.body, function(err, row) {
+	req.app.db.models.Badge.create(req.body, function(err, row) {
 		if (!err)
 			res.json({data: row});
 		else
@@ -53,7 +53,7 @@ exports.create = function(req, res) {
 }
 
 exports.updateId = function(req, res) {
-	req.app.db.models.User.update({_id: req.params.id}).exec(function(err, row) {
+	req.app.db.models.Badge.update({_id: req.params.id}).exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
 		else
@@ -62,7 +62,7 @@ exports.updateId = function(req, res) {
 }
 
 exports.delete = function(req, res) {
-	req.app.db.models.User.findById(req.params.id).exec(function(err, row) {
+	req.app.db.models.Badge.findById(req.params.id).exec(function(err, row) {
 		if (!err && row) {
 			row.remove(function(err){
 				if (err)
