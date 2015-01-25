@@ -24,6 +24,16 @@ router.post('/events', require('./api/events/index').create);
 router.put('/events/:id', require('./api/events/index').updateId);
 router.delete('/events/:id', require('./api/events/index').delete);
 
+// eventRegisters
+router.get('/eventregister', require('./api/eventRegister/index').listAll);
+router.get('/eventregister/findOne', require('./api/eventRegister/index').findOne);
+router.get('/eventregister/count', require('./api/eventRegister/index').count);
+router.get('/eventregister/:id', require('./api/eventRegister/index').findId);
+router.get('/eventregister/:id/exists', require('./api/eventRegister/index').exists);
+router.post('/eventregister', require('./api/eventRegister/index').create);
+router.put('/eventregister/:id', require('./api/eventRegister/index').updateId);
+router.delete('/eventregister/:id', require('./api/eventRegister/index').delete);
+
 // notifications
 router.get('/notifications', require('./api/notifications/index').listAll);
 router.get('/notifications/findOne', require('./api/notifications/index').findOne);
@@ -43,6 +53,26 @@ router.get('/badges/:id/exists', require('./api/badges/index').exists);
 router.post('/badges', require('./api/badges/index').create);
 router.put('/badges/:id', require('./api/badges/index').updateId);
 router.delete('/badges/:id', require('./api/badges/index').delete);
+
+// validations
+router.get('/validations', require('./api/validations/index').listAll);
+router.get('/validations/findOne', require('./api/validations/index').findOne);
+router.get('/validations/count', require('./api/validations/index').count);
+router.get('/validations/:id', require('./api/validations/index').findId);
+router.get('/validations/:id/exists', require('./api/validations/index').exists);
+router.post('/validations', require('./api/validations/index').create);
+router.put('/validations/:id', require('./api/validations/index').updateId);
+router.delete('/validations/:id', require('./api/validations/index').delete);
+
+// eventRegisters
+router.get('/eventRegister', require('./api/eventRegister/index').listAll);
+router.get('/eventRegister/findOne', require('./api/eventRegister/index').findOne);
+router.get('/eventRegister/count', require('./api/eventRegister/index').count);
+router.get('/eventRegister/:id', require('./api/eventRegister/index').findId);
+router.get('/eventRegister/:id/exists', require('./api/eventRegister/index').exists);
+router.post('/eventRegister', require('./api/eventRegister/index').create);
+router.put('/eventRegister/:id', require('./api/eventRegister/index').updateId);
+router.delete('/eventRegister/:id', require('./api/eventRegister/index').delete);
 
 router.post('/signup', require('./views/signup').init);
 router.post('/login', require('./views/login').init);
