@@ -18,6 +18,9 @@ var routes = require('./routes.js');
 
 var app = express();
 
+// setting ID generator
+app.utils = require('./modules');
+
 // setting up Database
 app.db = mongoose.createConnection(config.mongodb.uri);
 app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
