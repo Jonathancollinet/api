@@ -6,6 +6,7 @@ var config = require('./config'),
     logger = require('morgan'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
+    methodOverride = require('method-override'),
     mongoose = require('mongoose');
 
 var SpdyOptions = {
@@ -41,6 +42,7 @@ app.locals.pretty = true;
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(methodOverride());
 // app.use(cookieParser(config.cookieSecret));
 app.use(express.static(path.join(__dirname, 'public')));
 
