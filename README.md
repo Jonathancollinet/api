@@ -9,7 +9,7 @@ Liste des informations nécessaires lors de l'inscription :
 - Nom du device
 - ID de l'application (contenu dans la db)
 - Secret de l'application (contenu dans la db)
-* ces informations sont transmises par Google et Facebook lors de la connexion via le bouton "S'inscrire/Se connecter"
+> ces informations sont transmises par Google et Facebook lors de la connexion via le bouton "S'inscrire/Se connecter"
 
 Remplacez CLIENT_ID, CLIENT_SECRET, USER_ID, TOKEN, PROVIDER et DEVICE par leur valeur
 > client_id=CLIENT_ID:client_secret=CLIENT_SECRET:user_id=USER_ID:token=TOKEN:provider=PROVIDER:device=DEVICE
@@ -52,12 +52,11 @@ Pour effectuer une requête à l'API il faut ajouter dans le header de chacune d
 ### Refresh Token
 
 Pour générer un nouveau token, deux possibilités existent :
-- Refaire un appel à /login ou /signup quand le token est expiré
-- Faire un appel à /login avec :
-  Dans le header
-  - `Authorization: Adok CHAINE_BASE64`
-  Dans le body
-  - `grand_type=refresh_token`
-  - `refresh_token=REFRESH_TOKEN`
+Refaire un appel /signup(ou /login) quand le token est expiré ou faire un appel à /login avec :
+Dans le header
+- `Authorization: Adok CHAINE_BASE64`
+Dans le body
+- `grand_type=refresh_token`
+- `refresh_token=REFRESH_TOKEN`
 
 Si l'appel se passe correctement, un nouvel objet json est renvoyé.
