@@ -14,7 +14,7 @@ exports.mongodb = {
   uri: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGO_URL || 'localhost/adok?safe=true'
 };
 exports.token = {
-  life: process.env.TOKEN_LIFE || 3600
+  expires_in: process.env.TOKEN_LIFE || 3600
 };
 exports.oauth = {
   facebook: {

@@ -7,7 +7,8 @@ var config = require('./config'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
-    mongoose = require('mongoose');
+    mongoose = require('mongoose')
+    passport = require('passport');
 
 var SpdyOptions = {
   key: config.ssl.key,
@@ -15,11 +16,11 @@ var SpdyOptions = {
   autoSpdy31: true
 };
 
-var routes = require('./routes.js');
 
+var routes = require('./routes.js');
 var app = express();
 
-// setting ID generator
+// setting utilities
 app.utils = require('./modules');
 
 // setting up Database
@@ -30,7 +31,8 @@ app.db.once('open', function() {
 });
 
 // loading Database's models
-require('./models')(app, mongoose);
+require('./models')(app, mongoose)
+app.db.models.Client.InstallAdokApplications();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -46,7 +48,17 @@ app.use(methodOverride());
 // app.use(cookieParser(config.cookieSecret));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+app.use(passport.initialize());
+
+// routes.enableOauth2(app);
+routes.oauth2.setApp(app);
+
+require('./passport')(app, passport);
+
+/* GET home page. */
+app.get('/', require('./views/homepage').init);
+
+app.use('/', routes.Router(passport));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -79,9 +91,7 @@ app.use(function(err, req, res, next) {
     });
 });
 
-
-
-module.exports = app;
+exports.app = app;
 
 app.set('port', config.port || process.env.PORT || 8080);
 

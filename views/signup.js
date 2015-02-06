@@ -49,7 +49,7 @@ exports.init = function(req, res) {
 
   workflow.on('checkDuplicateEmail', function() {
     var find = {};
-    console.log(dataflow.social);
+
     find[req.body.auth_type+'.id'] = dataflow.social.id;
     req.app.db.models.User.findOne(find).exec(function(err, user) {
       if (err)
@@ -99,9 +99,11 @@ exports.init = function(req, res) {
       if (err)
         return workflow.emit('exception', err);
       workflow.outcome.account = account;
-      // To add -> Generate Token API & return it
-      return workflow.emit('redirect', '/login');
-      return workflow.emit('response');
+      req.app.db.models.User.findByIdAndUpdate(workflow.outcome.user._id, { $set: { roles: { account: account._id } } }).exec(function(err, count, res) {
+        if (err)
+          return workflow.emit('exception', err);
+        return workflow.emit('redirect', '/login');
+      });
     });
   });
 

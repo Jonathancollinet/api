@@ -1,4 +1,4 @@
 var hat = require('hat');
-exports = module.exports = function(req, res, next) {
-  return hat();
+exports = module.exports = function() {
+  return hat(256);
 }
