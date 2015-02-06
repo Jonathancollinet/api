@@ -15,14 +15,28 @@ var server = oauth2orize.createServer();
 var app = {};
 
 server.exchange(utils.oauth2.adok(function(client, clientId, device, scope, done) {
-  console.log("== EXCHANGE Adok ==");
+  // console.log("== EXCHANGE Adok ==");
   var workflow = new (require('events').EventEmitter)();
 
   workflow.on('get Client ObjectId', function() {
     app.db.models.Client.findOne({ 'client.id': clientId }).exec(function(err, res) {
       if (err)
         return workflow.emit('response', err);
-      workflow.emit('delete refresh token', res._id);
+      workflow.emit('check if access token is still valide', res._id);
+    });
+  });
+
+  workflow.on('check if access token is still valide', function(cl) {
+    app.db.models.AccessToken.findOne({ user: client._id, device: device, client: cl }).exec(function(err, token) {
+      if (err)
+        return workflow.emit('response', err);
+      if (Math.round((Date.now()-token.created)/1000) > config.token.expires_in)
+        return workflow.emit('delete refresh token');
+      app.db.models.RefreshToken.findOne({ user: client._id, device: device, client: cl }).exec(function(err, refreshToken) {
+        if (err)
+          return workflow.emit('response', err);
+        return workflow.emit('response', null, token.token, refreshToken.token, { expires_in: config.token.expires_in - Math.round((Date.now()-token.created)/1000) });
+      });
     });
   });
 
@@ -58,16 +72,16 @@ server.exchange(utils.oauth2.adok(function(client, clientId, device, scope, done
     })
   });
 
-  workflow.on('response', function(err, accessToken, refreshToken) {
+  workflow.on('response', function(err, accessToken, refreshToken, options) {
     if (err) { return done(new TokenError(err))}
-    done(null, accessToken, refreshToken, config.token);
+    done(null, accessToken, refreshToken, options || config.token);
   });
 
   workflow.emit('get Client ObjectId');
 }));
 
 server.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken, scope, done) {
-  console.log("== EXCHANGE REFRESH_TOKEN ==");
+  // console.log("== EXCHANGE REFRESH_TOKEN ==");
   var workflow = new (require('events').EventEmitter)();
 
   workflow.on('find and remove old refresh token', function() {
