@@ -17,6 +17,7 @@ exports.token = {
   expires_in: process.env.TOKEN_LIFE || 3600
 };
 exports.rateLimits = {
+  cron: 60 * 1000, // 1 min
   ttl: 10 * 60 * 1000, // 10 mins
   maxHits: 600
 };

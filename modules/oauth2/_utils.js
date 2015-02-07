@@ -1,2 +1,2 @@
 exports.merge = require('utils-merge');
-exports.uid = require('uid2');
+// exports.uid = require('uid2');

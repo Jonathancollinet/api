@@ -1,3 +1,16 @@
+exports.me = function(req, res, next) {
+	if (!req.user)
+		return next({ error: 'Missing', message: 'User undefined' });
+	res.json({
+		provider: req.facebook ? 'facebook' : 'google',
+		email: req.user.email,
+		name: req.user.roles.account.name.full,
+		first_name: req.user.roles.account.name.first,
+		last_name: req.user.roles.account.name.last,
+		verified: req.user.roles.account.isVerified == 'yes' ? true : false
+	});
+}
+
 exports.listAll = function(req, res) {
 	req.app.db.models.User.find().populate("roles.account").exec(function(err, row) {
 		if (!err)

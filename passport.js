@@ -83,4 +83,14 @@ exports = module.exports = function(app, passport) {
       });
     }
   ));
+
+  passport.serializeUser(function(user, done) {
+    done(null, user._id);
+  });
+
+  passport.deserializeUser(function(id, done) {
+    req.app.db.models.User.findById(id).populate('roles.account').exec(function(err, user) {
+      done(err, user);
+    });
+  });
 };

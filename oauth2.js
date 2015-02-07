@@ -102,7 +102,7 @@ server.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken,
     app.db.models.AccessToken.remove({ device: old.device, user: client._id }, function(err) {
       if (err)
         return workflow.emit('response', err);
-      workflow.emit('create new refresh token', old);
+      workflow.emit('create new access token', old);
     });
   });
 

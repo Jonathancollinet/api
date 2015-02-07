@@ -76,7 +76,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-nodemon');
 	grunt.loadNpmTasks('grunt-concurrent');
 	grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-npm-install');
 
-	grunt.registerTask('default', ["uglify", "less", "concurrent"]);
+	grunt.registerTask('default', ["npm-install", "uglify", "less", "concurrent"]);
 	grunt.registerTask('cleaner', ['clean']);
 };

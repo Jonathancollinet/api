@@ -5,6 +5,9 @@ exports.Router = function(app, passport) {
   router.all('*', app.utils.RateLimit.limiter);
   router.all('*', passport.authenticate(['bearer'], { session: false }));
 
+  // me
+  router.get('/me', require('./api/users/index').me);
+
   // users
   router.get('/users', require('./api/users/index').listAll);
   router.get('/users/findOne', require('./api/users/index').findOne);
