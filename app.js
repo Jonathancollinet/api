@@ -20,6 +20,9 @@ var SpdyOptions = {
 var routes = require('./routes.js');
 var app = express();
 
+// linking configuration file
+app.Config = config;
+
 // setting utilities
 app.utils = require('./modules');
 
@@ -58,7 +61,7 @@ require('./passport')(app, passport);
 /* GET home page. */
 app.get('/', require('./views/homepage').init);
 
-app.use('/', routes.Router(passport));
+app.use('/', routes.Router(app, passport));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

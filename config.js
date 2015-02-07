@@ -16,6 +16,10 @@ exports.mongodb = {
 exports.token = {
   expires_in: process.env.TOKEN_LIFE || 3600
 };
+exports.rateLimits = {
+  ttl: 10 * 60 * 1000, // 10 mins
+  maxHits: 600
+};
 exports.oauth = {
   facebook: {
     key: '334710536706235',
