@@ -35,7 +35,7 @@ app.db.once('open', function() {
 
 // loading Database's models
 require('./models')(app, mongoose)
-app.db.models.Client.InstallAdokApplications();
+app.db.models.Client.InstallAdokApplications(app);
 app.db.models.RateLimit.startTTLReaper();
 // console.log(app.db.models.RateLimit);
 

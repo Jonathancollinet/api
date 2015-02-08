@@ -8,7 +8,7 @@ exports = module.exports = function(app, mongoose) {
       secret: { type: String, unique: true, required: true }
     }
   });
-  clientSchema.statics.InstallAdokApplications = function() {
+  clientSchema.statics.InstallAdokApplications = function(app) {
     app.db.models.Client.findOne({ name: 'Adok Android'}).exec(function(err, res) {
       if (!res) {
         app.db.models.Client.create({name: 'Adok Android', client: { id: app.utils.Tokens.Generate(), secret: app.utils.Tokens.Generate() }}, function(err, res) {
