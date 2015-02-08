@@ -15,7 +15,6 @@ var server = oauth2orize.createServer();
 var app = {};
 
 server.exchange(utils.oauth2.adok(function(client, clientId, device, scope, done) {
-  // console.log("== EXCHANGE Adok ==");
   var workflow = new (require('events').EventEmitter)();
 
   workflow.on('get Client ObjectId', function() {
@@ -31,7 +30,7 @@ server.exchange(utils.oauth2.adok(function(client, clientId, device, scope, done
       if (err)
         return workflow.emit('response', err);
       if (Math.round((Date.now()-token.created)/1000) > config.token.expires_in)
-        return workflow.emit('delete refresh token');
+        return workflow.emit('delete refresh token', cl);
       app.db.models.RefreshToken.findOne({ user: client._id, device: device, client: cl }).exec(function(err, refreshToken) {
         if (err)
           return workflow.emit('response', err);
@@ -74,7 +73,7 @@ server.exchange(utils.oauth2.adok(function(client, clientId, device, scope, done
 
   workflow.on('response', function(err, accessToken, refreshToken, options) {
     if (err) { return done(new TokenError(err))}
-    done(null, accessToken, refreshToken, options || config.token);
+    done(null, accessToken, refreshToken, { expires_in: config.token.expires_in });
   });
 
   workflow.emit('get Client ObjectId');
@@ -124,7 +123,7 @@ server.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken,
 
   workflow.on('response', function(err, accessToken, refreshToken) {
     if (err) { return done(new TokenError(err))}
-    done(null, accessToken, refreshToken, config.token);
+    done(null, accessToken, refreshToken, { expires_in: config.token.expires_in });
   });
 
   workflow.emit('find and remove old refresh token');

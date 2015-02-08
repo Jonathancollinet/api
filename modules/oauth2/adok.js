@@ -82,6 +82,7 @@ module.exports = function(options, issue) {
     // The 'user' property of `req` holds the authenticated user.  In the case
     // of the token endpoint, the property will contain the OAuth 2.0 client.
     var authorization = req.headers['authorization'];
+    if (!authorization) { return this.fail(this._challenge()); }
 
     var parts = authorization.split(' ')
     if (parts.length < 2) { return this.fail(400); }
@@ -94,9 +95,15 @@ module.exports = function(options, issue) {
       splitedCred[tmp[0]] = tmp[1];
     }
 
+    if (!/Adok/i.test(scheme)) { return this.fail(this._challenge()); }
+    if (credentials.length < 2) { return this.fail(400); }
+    if (!splitedCred.data || !splitedCred.tag) { return this.fail(this._challenge()); }
+
+    var infos = req.app.utils.Crypto.decrypt(req.app, splitedCred.data, splitedCred.tag);
+
     var client = req[userProperty]
-      , clientId = splitedCred['client_id']
-      , device = req.body.device || splitedCred['device']
+      , clientId = infos.client
+      , device = infos.device
       , scope = req.body.scope;
 
   // , provider = splitedCred['provider'] || req.body.provider

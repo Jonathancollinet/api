@@ -14,7 +14,17 @@ exports.mongodb = {
   uri: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGO_URL || 'localhost/adok?safe=true'
 };
 exports.token = {
-  expires_in: process.env.TOKEN_LIFE || 3600
+  expires_in: process.env.TOKEN_LIFE || 3600,
+  crypto: {
+    algorithm: 'aes-256-gcm',
+    key: {
+      password: '6tAKc{zxj7q%9_asd\\4Qs^5%[Dc83I+m', // 32 chars
+      iv: '53Jnh_5a9G7N' // 12 chars
+    },
+    header: {
+      password: '{z6s4tjd/7q%Kc9_aQs^AxoI$2Wpd8f3' // 32 chars
+    }
+  }
 };
 exports.rateLimits = {
   cron: 60 * 1000, // 1 min

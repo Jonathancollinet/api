@@ -9,10 +9,20 @@ exports.init = function(req, res) {
   var dataflow = {};
 
   workflow.on('checkRequest', function() {
+    if (!req.body.auth_type)
+      return workflow.emit('exception', 'Authentification Type Required');
     if (!acceptedAuth[req.body.auth_type])
       return workflow.emit('exception', 'La connexion avec '+req.body.auth_type+' n\'est pas autorisée.')
-    if (!req.body.access_token || !req.body.userID)
-      return workflow.emit('exception', 'Access token and user ID must be specified.');
+    if (!req.body.access_token)
+      return workflow.emit('exception', 'Provider Access Token required');
+    if (!req.body.userId)
+      return workflow.emit('exception', 'UserID on provider required');
+    if (!req.body.client_id)
+      return workflow.emit('exception', 'Client ID required');
+    if (!req.body.client_secret)
+      return workflow.emit('exception', 'Client secret required');
+    if (!req.body.device)
+      return workflow.emit('exception', 'Device name required');
     workflow.emit('getSocialData');
   });
 
@@ -21,7 +31,7 @@ exports.init = function(req, res) {
       request(acceptedAuth[req.body.auth_type]+req.body.access_token,
         function(error, response, body) {
           if (!error && response.statusCode == 200) {
-            if (req.body.userID != JSON.parse(body).id)
+            if (req.body.userID != body.id)
               return workflow.emit('exception', 'Supplied user and provider\'s user differ.');
             dataflow.social = JSON.parse(body);
             workflow.emit('checkDuplicateEmail');
@@ -55,8 +65,11 @@ exports.init = function(req, res) {
       if (err)
         return workflow.emit('exception', err);
       if (user) {
-        return workflow.emit('redirect', '/login');
-        return workflow.emit('exception', 'Ce compte '+req.body.auth_type+' est déjà utilisé.');
+        return workflow.emit('send key'
+          , req.body.client_id
+          , req.body.client_secret
+          , user._id
+          , req.body.device);
       }
       workflow.emit('createUser');
     });
@@ -102,9 +115,22 @@ exports.init = function(req, res) {
       req.app.db.models.User.findByIdAndUpdate(workflow.outcome.user._id, { $set: { roles: { account: account._id } } }).exec(function(err, count, res) {
         if (err)
           return workflow.emit('exception', err);
-        return workflow.emit('redirect', '/login');
+        return workflow.emit('send key'
+          , req.body.client_id
+          , req.body.client_secret
+          , workflow.outcome.user._id
+          , req.body.device);
       });
     });
+  });
+
+  workflow.on('send key', function(client, secret, user, device) {
+    return res.json(req.app.utils.Crypto.encrypt(req.app
+      , 'client=' + client
+      + ':secret=' + secret
+      + ':user=' + user
+      + ':device=' + device
+    ));
   });
 
   workflow.emit('checkRequest');

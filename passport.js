@@ -13,49 +13,17 @@ exports = module.exports = function(app, passport) {
       BearerStrategy          = require('passport-http-bearer').Strategy;
 
   passport.use(new AdokStrategy(
-    function(provider, token, userid, client, clientSecret, device, done) {
+    function(userid, client, clientSecret, device, done) {
       app.db.models.Client.findOne({ client: { id: client, secret: clientSecret }}).exec(function(err, cl) {
         if (err) { return donne(err) };
         if (!cl) { return done(null, false); }
-        if (!acceptedAuth[provider]) { return done(new TokenError(provider+' not authorized', 'invalid_request')); }
 
-        if (provider == "facebook") {
-          request(acceptedAuth[provider]+token,
-            function(error, response, body) {
-              if (!error && response.statusCode == 200) {
-                if (userid != JSON.parse(body).id) { return done(new TokenError('Unknown user_id', 'invalid_request')); }
+        var find = {};
+        app.db.models.User.findById(userid).populate('roles.account').exec(function(err, user) {
+          if (err || !user) { return done(new TokenError('Unknown user', 'invalid_request')); }
 
-                var find = {};
-                find[provider+'.id'] = userid;
-                app.db.models.User.findOne(find).populate('roles.account').exec(function(err, user) {
-                  if (err || !user) { return done(new TokenError('Unknown user', 'invalid_request')); }
-
-                  return done(null, user);
-                });
-              } else
-                done(new TokenError(err || response.statusCode, 'invalid_request'));
-          });
-        } else {
-          var opt = {
-            url: acceptedAuth[provider],
-            headers: {
-              'Authorization': 'Bearer '+token
-            }
-          };
-          request(opt, function(error, response, body) {
-            if (!error && response.statusCode == 200) {
-              if (userid != JSON.parse(body).id) { return done(new TokenError('Unknown user_id', 'invalid_request')); }
-
-              var find = {};
-              find[provider+'.id'] = JSON.parse(body).id;
-              req.app.db.models.User.findOne(find).populate('roles.account').exec(function(err, user) {
-                if (err) { return done(new TokenError('Unknown user', 'invalid_request')); }
-                return done(null, user);
-              });
-            } else
-              done(new TokenError(error || response.statusCode, 'invalid_request'));
-          });
-        }
+          return done(null, user);
+        });
       });
     }
   ));

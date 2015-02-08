@@ -11,21 +11,23 @@ Liste des informations nécessaires lors de l'inscription :
 - Secret de l'application (contenu dans la db)
 > ces informations sont transmises par Google et Facebook lors de la connexion via le bouton "S'inscrire/Se connecter"
 
-Remplacez CLIENT_ID, CLIENT_SECRET, USER_ID, TOKEN, PROVIDER et DEVICE par leur valeur
-> client_id=CLIENT_ID:client_secret=CLIENT_SECRET:user_id=USER_ID:token=TOKEN:provider=PROVIDER:device=DEVICE
-
-Encodez ensuite cette chaine en Base64, elle sera utilisé pour se connecter et récupérer un Token.
-
 Envoyer une requête POST sur /signup contenant :
-- Dans le header
-  - `Authorization: Adok CHAINE_BASE64`
 - Dans le body
-  - `auth_type=PROVIDER`
+  - `auth_type=google/facebook`
   - `access_token=TOKEN`
-  - `userID=USER_ID`
-  - `grant_type=adok`
+  - `userId=USER_ID`
+  - `client_id=USER_ID`
+  - `client_secret=USER_ID`
+  - `device=DEVICE`
 
-> Le header n'est utile que pour la connexion (identification). Si l'inscription se passe correctement (l'utilisateur existe déjà ou celui-ci vient d'être créé) la redirection vers /login se faut automatiquement.
+Un appel réussi à /signup renvoit une chaine de caractère(CHAINE_BASE64) utilisée pour accéder à la route /login, concervez là.
+Un nouvel appel à /signup reverra une nouvelle chaine pouvant être utilisée pour accéder à /login.
+
+Envoyer une requête POST sur /login contenant :
+- Dans le header
+ -- `Authorization: Adok STRING` où STRING représente la chaine obtenu via /signup
+- Dans le body
+ -- `grant_type=adok`
 
 Un appel réussi à /login renvois un objet formé comme suit :
 ```json
@@ -51,8 +53,7 @@ Pour effectuer une requête à l'API il faut ajouter dans le header de chacune d
 
 ### Refresh Token
 
-Pour générer un nouveau token, deux possibilités existent :
-Refaire un appel /signup(ou /login) quand le token est expiré ou faire un appel à /login avec :
+Pour générer un nouveau token, vous devez envoyer une requête POST sur /login avec :
 Dans le header
 - `Authorization: Adok CHAINE_BASE64`
 Dans le body
