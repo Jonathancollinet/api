@@ -75,18 +75,18 @@ AdokStrategy.prototype.authenticate = function(req) {
     splitedCred[tmp[0]] = tmp[1];
   }
   if (!/Adok/i.test(scheme)) { return this.fail(this._challenge()); }
-  if (credentials.length < 5) { return this.fail(400); }
+  if (credentials.length < 2) { return this.fail(400); }
+  if (!splitedCred.data || !splitedCred.tag) { return this.fal(this._challenge()); }
 
-  var provider = splitedCred['provider'];
-  var token = splitedCred['token'];
-  var userid = splitedCred['user_id'];
-  var client = splitedCred['client_id'];
-  var clientSecret = splitedCred['client_secret'];
-  var device = splitedCred['device'];
-  if (!provider || !token || !userid || !client || !clientSecret || !device) {
+  var infos = req.app.utils.Crypto.decrypt(req.app, splitedCred.data, splitedCred.tag);
+
+  var userid = infos.user;
+  var client = infos.client;
+  var clientSecret = infos.secret;
+  var device = infos.device;
+  if (!userid || !client || !clientSecret || !device) {
     return this.fail(this._challenge());
   }
-
   var self = this;
 
   function verified(err, user) {
@@ -94,11 +94,10 @@ AdokStrategy.prototype.authenticate = function(req) {
     if (!user) { return self.fail(self._challenge()); }
     self.success(user);
   }
-
   if (self._passReqToCallback) {
-    this._verify(req, provider, token, userid, client, clientSecret, device, verified);
+    this._verify(req, userid, client, clientSecret, device, verified);
   } else {
-    this._verify(provider, token, userid, client, clientSecret, device, verified);
+    this._verify(userid, client, clientSecret, device, verified);
   }
 }
 

@@ -9,7 +9,7 @@ var config = require('./config'),
     };
 
 exports = module.exports = function(app, passport) {
-  var AdokStrategy            = require('passport-adok').Strategy,
+  var AdokStrategy            = app.utils.Passport.AdokStrategy,
       BearerStrategy          = require('passport-http-bearer').Strategy;
 
   passport.use(new AdokStrategy(
@@ -17,7 +17,7 @@ exports = module.exports = function(app, passport) {
       app.db.models.Client.findOne({ client: { id: client, secret: clientSecret }}).exec(function(err, cl) {
         if (err) { return donne(err) };
         if (!cl) { return done(null, false); }
-
+        console.log('adok Strategy');
         var find = {};
         app.db.models.User.findById(userid).populate('roles.account').exec(function(err, user) {
           if (err || !user) { return done(new TokenError('Unknown user', 'invalid_request')); }
@@ -30,6 +30,7 @@ exports = module.exports = function(app, passport) {
 
   passport.use(new BearerStrategy(
     function(accessToken, done) {
+      console.log('BearerStrategy', accessToken);
       app.db.models.AccessToken.findOne({ token: accessToken}).exec(function(err, token) {
         if (err) { return done(err); }
         if (!token) { return done(null, false); }

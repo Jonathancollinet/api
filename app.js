@@ -1,5 +1,6 @@
 var config = require('./config'),
     express = require('express'),
+    http = require('http'),
     spdy = require('spdy'),
     path = require('path'),
     favicon = require('serve-favicon'),
@@ -100,8 +101,16 @@ exports.app = app;
 
 app.set('port', config.port || process.env.PORT || 8080);
 
-var server = spdy.createServer(SpdyOptions, app);
+if (app.Config.ssl.enabled) {
+  var server = spdy.createServer(SpdyOptions, app);
 
-server.listen(app.get('port'), function() {
-  console.log('Server listening on https://localhost:' + server.address().port);
-});
+  server.listen(app.get('port'), function() {
+    console.log('Server listening on HTTPS -> https://localhost:' + server.address().port);
+  });
+} else {
+  var server = http.createServer(app);
+
+  server.listen(app.get('port'), function() {
+    console.log('Server listening on HTTP -> http://localhost:' + server.address().port)
+  });
+}

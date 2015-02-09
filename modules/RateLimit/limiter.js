@@ -12,7 +12,7 @@ exports = module.exports = function(req, res, next) {
       if (!bucket) {
         req.app.db.models.RateLimit.create({ ip: ip }, function(err, limiter) {
           if (err) {
-            return next(error);
+            return next(err);
           }
           if (!limiter) {
             res.statusCode = 500;

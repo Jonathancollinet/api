@@ -23,12 +23,21 @@ exports.init = function(req, res) {
       return workflow.emit('exception', 'Client secret required');
     if (!req.body.device)
       return workflow.emit('exception', 'Device name required');
-    workflow.emit('getSocialData');
+    workflow.emit('checkClient');
+  });
+
+  workflow.on('checkClient', function() {
+    req.app.db.models.Client.findOne({ client: { id: req.body.client_id, secret: req.body.client_secret } }).exec(function(err, res) {
+      if (err || !res)
+        return workflow.emit('exception', err || 'Unauthozired Client');
+      workflow.emit('getSocialData');
+    })
   });
 
   workflow.on('getSocialData', function() {
-    if (req.body.auth_type == "facebook") {
-      request(acceptedAuth[req.body.auth_type]+req.body.access_token,
+    console.log();
+    if (/^facebook/i.test(req.body.auth_type)) {
+      request(acceptedAuth['facebook']+req.body.access_token,
         function(error, response, body) {
           if (!error && response.statusCode == 200) {
             if (req.body.userID != body.id)
@@ -38,9 +47,9 @@ exports.init = function(req, res) {
           } else
             return workflow.emit('exception', JSON.stringify(error || response));
       });
-    } else {
+    } else if (/^google/i.test(req.body.auth_type)) {
       var opt = {
-        url: acceptedAuth[req.body.auth_type],
+        url: acceptedAuth['google'],
         headers: {
           'Authorization': 'Bearer '+req.body.access_token
         }
@@ -54,6 +63,8 @@ exports.init = function(req, res) {
         } else
           return workflow.emit('exception', JSON.stringify(error || response));
       })
+    } else {
+      return workflow.emit('exception', 'Unauthorized Client');
     }
   });
 

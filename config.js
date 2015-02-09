@@ -7,6 +7,7 @@ exports.host = '127.0.0.1';
 exports.port = process.env.API_PORT || 8080;
 exports.url = 'http://localhost:8080/';
 exports.ssl = {
+  enabled: false,
   key: fs.readFileSync('ssl/certificate.key', 'utf8'),
   certificate: fs.readFileSync('ssl/certificate.crt', 'utf8')
 };
