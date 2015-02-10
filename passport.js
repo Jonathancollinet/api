@@ -13,7 +13,7 @@ exports = module.exports = function(app, passport) {
       BearerStrategy          = require('passport-http-bearer').Strategy;
 
   passport.use(new AdokStrategy(
-    function(userid, client, clientSecret, device, done) {
+    function(userid, client, clientSecret, deviceID, deviceName, done) {
       app.db.models.Client.findOne({ client: { id: client, secret: clientSecret }}).exec(function(err, cl) {
         if (err) { return donne(err) };
         if (!cl) { return done(null, false); }

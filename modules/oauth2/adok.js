@@ -103,19 +103,13 @@ module.exports = function(options, issue) {
 
     var client = req[userProperty]
       , clientId = infos.client
-      , device = infos.device
+      , deviceName = new Buffer(infos.deviceName, 'base64').toString()
+      , deviceId = infos.deviceID
       , scope = req.body.scope;
 
-  // , provider = splitedCred['provider'] || req.body.provider
-  // , clientSecret = splitedCred['client_secret'] || req.body.client_secret
-  // , clientToken = splitedCred['token'] || req.body.token
-  // , userId = splitedCred['user_id'] || req.body.user_id
-    if (!device) { return next(new TokenError('Missing required parameter: device', 'invalid_request')); }
-    // if (!provider) { return next(new TokenError('Missing required parameter: provider', 'invalid_request')); }
-    if (!clientId) { return next(new TokenError('Missing required parameter: client_id', 'invalid_request')); }
-    // if (!clientSecret) { return next(new TokenError('Missing required parameter: client_secret', 'invalid_request')); }
-    // if (!clientToken) { return next(new TokenError('Missing required parameter: token', 'invalid_request')); }
-    // if (!userId) { return next(new TokenError('Missing required parameter: user_id', 'invalid_request')); }
+    if (!client || !clientId || !deviceName || !deviceId) { return this.fail(this._challenge()); }
+    // if (!deviceID) { return next(new TokenError('Missing required parameter: device', 'invalid_request')); }
+    // if (!clientId) { return next(new TokenError('Missing required parameter: client_id', 'invalid_request')); }
 
     if (scope) {
       for (var i = 0, len = separators.length; i < len; i++) {
@@ -153,11 +147,12 @@ module.exports = function(options, issue) {
 
     try {
       var arity = issue.length;
-      if (arity == 5) {
+
+      if (arity == 6) {
         // issue(client, provider, clientId, clientSecret, clientToken, userId, scope, issued);
-        issue(client, clientId, device, scope, issued);
-      } else { // arity == 4
-        issue(client, clientId, device, issued);
+        issue(client, clientId, deviceId, deviceName, scope, issued);
+      } else { // arity == 5
+        issue(client, clientId, deviceId, deviceName, issued);
       }
     } catch (ex) {
       return next(ex);

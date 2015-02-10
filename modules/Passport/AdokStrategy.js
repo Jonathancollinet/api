@@ -83,8 +83,9 @@ AdokStrategy.prototype.authenticate = function(req) {
   var userid = infos.user;
   var client = infos.client;
   var clientSecret = infos.secret;
-  var device = infos.device;
-  if (!userid || !client || !clientSecret || !device) {
+  var deviceID = infos.deviceID;
+  var deviceName = new Buffer(infos.deviceName, 'base64').toString();
+  if (!userid || !client || !clientSecret || !deviceID || !deviceName) {
     return this.fail(this._challenge());
   }
   var self = this;
@@ -95,9 +96,9 @@ AdokStrategy.prototype.authenticate = function(req) {
     self.success(user);
   }
   if (self._passReqToCallback) {
-    this._verify(req, userid, client, clientSecret, device, verified);
+    this._verify(req, userid, client, clientSecret, deviceID, deviceName, verified);
   } else {
-    this._verify(userid, client, clientSecret, device, verified);
+    this._verify(userid, client, clientSecret, deviceID, deviceName, verified);
   }
 }
 

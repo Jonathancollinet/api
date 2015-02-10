@@ -9,16 +9,19 @@ Liste des informations nécessaires lors de l'inscription :
 - Nom du device
 - ID de l'application (contenu dans la db)
 - Secret de l'application (contenu dans la db)
+- Unique ID du téléphone
+- Nom du téléphone
 > ces informations sont transmises par Google et Facebook lors de la connexion via le bouton "S'inscrire/Se connecter"
 
 Envoyer une requête POST sur /signup contenant :
 - Dans le body
   - `auth_type=google/facebook`
   - `access_token=TOKEN`
-  - `userId=USER_ID`
+  - `user_id=USER_ID`
   - `client_id=USER_ID`
   - `client_secret=USER_ID`
-  - `device=DEVICE`
+  - `defive_id=DEVICE_ID`
+  - `device_name=DEVICE_NAME`
 
 Un appel réussi à /signup renvoit une chaine de caractère(CHAINE_BASE64) utilisée pour accéder à la route /login, concervez là.
 Un nouvel appel à /signup reverra une nouvelle chaine pouvant être utilisée pour accéder à /login.

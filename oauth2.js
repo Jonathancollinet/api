@@ -14,7 +14,7 @@ var oauth2orize   = require('oauth2orize'),
 var server = oauth2orize.createServer();
 var app = {};
 
-server.exchange(utils.oauth2.adok(function(client, clientId, device, scope, done) {
+server.exchange(utils.oauth2.adok(function(client, clientId, deviceId, deviceName, scope, done) {
   var workflow = new (require('events').EventEmitter)();
 
   workflow.on('get Client ObjectId', function() {
@@ -26,13 +26,13 @@ server.exchange(utils.oauth2.adok(function(client, clientId, device, scope, done
   });
 
   workflow.on('check if access token is still valide', function(cl) {
-    app.db.models.AccessToken.findOne({ user: client._id, device: device, client: cl }).exec(function(err, token) {
+    app.db.models.AccessToken.findOne({ user: client._id, device: { id: deviceId, name: deviceName }, client: cl }).exec(function(err, token) {
       if (err)
         return workflow.emit('response', err);
 
       if (!token || (Math.round((Date.now()-token.created)/1000) > config.token.expires_in))
         return workflow.emit('delete refresh token', cl);
-      app.db.models.RefreshToken.findOne({ user: client._id, device: device, client: cl }).exec(function(err, refreshToken) {
+      app.db.models.RefreshToken.findOne({ user: client._id, device: { id: deviceId, name: deviceName }, client: cl }).exec(function(err, refreshToken) {
         if (err)
           return workflow.emit('response', err);
 
@@ -42,7 +42,7 @@ server.exchange(utils.oauth2.adok(function(client, clientId, device, scope, done
   });
 
   workflow.on('delete refresh token', function(cl) {
-    app.db.models.RefreshToken.remove({ user: client._id, device: device, client: cl }, function(err) {
+    app.db.models.RefreshToken.remove({ user: client._id, device: { id: deviceId, name: deviceName }, client: cl }, function(err) {
       if (err)
         return workflow.emit('response', err);
       workflow.emit('delete access token', cl);
@@ -50,7 +50,7 @@ server.exchange(utils.oauth2.adok(function(client, clientId, device, scope, done
   });
 
   workflow.on('delete access token', function(cl) {
-    app.db.models.AccessToken.remove({ user: client._id, device: device, client: cl }, function(err) {
+    app.db.models.AccessToken.remove({ user: client._id, device: { id: deviceId, name: deviceName }, client: cl }, function(err) {
       if (err)
         return workflow.emit('response', err);
       workflow.emit('create new access token', cl);
@@ -58,7 +58,7 @@ server.exchange(utils.oauth2.adok(function(client, clientId, device, scope, done
   });
 
   workflow.on('create new access token', function(cl) {
-    app.db.models.AccessToken.create({ user: client._id, client: cl, device: device, token: app.utils.Tokens.Generate() }, function(err, token) {
+    app.db.models.AccessToken.create({ user: client._id, client: cl, device: { id: deviceId, name: deviceName }, token: app.utils.Tokens.Generate() }, function(err, token) {
       if (err)
         return workflow.emit('response', err);
       workflow.emit('create new refresh token', cl, token.token);
@@ -66,7 +66,7 @@ server.exchange(utils.oauth2.adok(function(client, clientId, device, scope, done
   });
 
   workflow.on('create new refresh token', function(cl, accessToken) {
-    app.db.models.RefreshToken.create({ user: client._id, client: cl, device: device, token: app.utils.Tokens.Generate() }, function(err, token) {
+    app.db.models.RefreshToken.create({ user: client._id, client: cl, device: { id: deviceId, name: deviceName }, token: app.utils.Tokens.Generate() }, function(err, token) {
       if (err)
         return workflow.emit('response', err);
       workflow.emit('response', null, accessToken, token.token);
@@ -99,7 +99,7 @@ server.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken,
   });
 
   workflow.on('remove old access token', function(old) {
-    app.db.models.AccessToken.remove({ device: old.device, user: client._id }, function(err) {
+    app.db.models.AccessToken.remove({ device: { id: old.device.id, name: old.device.Name }, user: client._id }, function(err) {
       if (err)
         return workflow.emit('response', err);
       workflow.emit('create new access token', old);
@@ -107,7 +107,7 @@ server.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken,
   });
 
   workflow.on('create new access token', function(old) {
-    app.db.models.AccessToken.create({ user: client._id, client: old.client, device: old.device, token: app.utils.Tokens.Generate() }, function(err, token) {
+    app.db.models.AccessToken.create({ user: client._id, client: old.client, device: { id: old.device.id, name: old.device.name }, token: app.utils.Tokens.Generate() }, function(err, token) {
       if (err)
         return workflow.emit('response', err);
       workflow.emit('create new refresh token', token);
@@ -115,7 +115,7 @@ server.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken,
   });
 
   workflow.on('create new refresh token', function(token) {
-    app.db.models.RefreshToken.create({ user: client._id, client: token.client, device: token.device, token: app.utils.Tokens.Generate() }, function(err, refreshToken) {
+    app.db.models.RefreshToken.create({ user: client._id, client: token.client, device: { id: token.device.id, name: token.device.name }, token: app.utils.Tokens.Generate() }, function(err, refreshToken) {
       if (err)
         return workflow.emit('response', err);
       workflow.emit('response', null, token.token, refreshToken.token);
