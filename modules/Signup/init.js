@@ -45,10 +45,8 @@ exports = module.exports = function(req, res) {
             body = body;
           }
           if (!error && response.statusCode == 200) {
-            if (!body.email)
-              return workflow.emit('exception', 'Can\'t get email. Did you ask for enough permission ?');
             if (req.body.user_id != body.id)
-              return workflow.emit('exception', 'Supplied user and provider\'s user differ.');
+              return workflow.emit('exception', 'Supplied user and provider\'s user differ');
             dataflow.social = body;
             workflow.emit('checkDuplicateEmail');
           } else
@@ -68,10 +66,10 @@ exports = module.exports = function(req, res) {
           } catch (err) {
             body = body;
           }
-          if (!body.email)
-            return workflow.emit('exception', 'Can\'t get email. Did you ask for enough permission ?');
           if (req.body.user_id != body.id)
-            return workflow.emit('exception', 'Supplied user and provider\'s user differ.');
+            return workflow.emit('exception', 'Supplied user and provider\'s user differ');
+          if (!body.email)
+            return workflow.emit('exception', 'Can\'t get email. Did you include email scope?');
           dataflow.social = body;
           workflow.emit('checkDuplicateEmail');
         } else
