@@ -1,12 +1,11 @@
-var request = require('request'),
-    acceptedAuth = {
-      'facebook': 'https://graph.facebook.com/me?access_token=',
-      'google': 'https://www.googleapis.com/oauth2/v1/userinfo'
-    };
-
-exports.init = function(req, res) {
-  var workflow = require('workflow')(req, res);
-  var dataflow = {};
+exports = module.exports = function(req, res) {
+  var request = require('request')
+    , acceptedAuth = {
+        'facebook': 'https://graph.facebook.com/me?access_token=',
+        'google': 'https://www.googleapis.com/oauth2/v1/userinfo'
+      }
+    , workflow = require('workflow')(req, res)
+    , dataflow = {};
 
   workflow.on('checkRequest', function() {
     if (!req.body.auth_type)
@@ -35,7 +34,6 @@ exports.init = function(req, res) {
   });
 
   workflow.on('getSocialData', function() {
-    console.log();
     if (/^facebook/i.test(req.body.auth_type)) {
       request(acceptedAuth['facebook']+req.body.access_token,
         function(error, response, body) {
@@ -56,7 +54,7 @@ exports.init = function(req, res) {
       };
       request(opt, function(error, response, body) {
         if (!error && response.statusCode == 200) {
-          if (req.body.userID != JSON.parse(body).id)
+          if (req.body.userID != body.id)
             return workflow.emit('exception', 'Supplied user and provider\'s user differ.');
           dataflow.social = JSON.parse(body);
           workflow.emit('checkDuplicateEmail');

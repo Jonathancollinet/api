@@ -19,7 +19,7 @@ exports = module.exports = function(app, mongoose) {
     toNotif: { type: Array },
     datas: { type: Object }
   }, {safe: true});
-  EventSchema.plugin(require('./plugins/pagedFind'));
+  EventSchema.plugin(require('./plugins/paginate'));
   EventSchema.set('autoIndex', (app.get('env') === 'development'));
   app.db.model('Event', EventSchema);
 };

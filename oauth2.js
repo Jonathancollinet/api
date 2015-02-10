@@ -139,3 +139,7 @@ exports.token = [
 exports.setApp = function(App) {
   app = App;
 };
+
+exports.getApp = function() {
+  return app;
+};

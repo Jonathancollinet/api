@@ -20,16 +20,18 @@ var SpdyOptions = {
 
 var routes = require('./routes.js');
 var app = express();
+exports.app = app;
 
 // linking configuration file
 app.Config = config;
 
 // setting utilities
 app.utils = require('./modules');
+exports.utils = app.utils;
 
 // setting up Database
 app.db = mongoose.createConnection(config.mongodb.uri);
-app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
+app.db.on('error', function(err) { throw new Error(err); }); //console.error.bind(console, 'mongoose connection error: '));
 app.db.once('open', function() {
   console.log("Connected to mongodb " + config.mongodb.uri);
 });
@@ -56,14 +58,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(passport.initialize());
 
-// routes.enableOauth2(app);
-routes.oauth2.setApp(app);
+var oauth2 = require('./oauth2');
+oauth2.setApp(app);
+
 
 require('./passport')(app, passport);
 
 /* GET home page. */
 app.get('/', require('./views/homepage').init);
 
+/* POST signup */
+app.post('/signup', app.utils.Signup.init);
+
+/* Mount POST login point */
+app.post('/login', oauth2.token);
+
+/* Mount API router */
 app.use('/', routes.Router(app, passport));
 
 // catch 404 and forward to error handler
@@ -96,8 +106,6 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
-
-exports.app = app;
 
 app.set('port', config.port || process.env.PORT || 8080);
 

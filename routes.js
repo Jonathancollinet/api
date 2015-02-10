@@ -78,12 +78,6 @@ exports.Router = function(app, passport) {
   router.put('/eventRegister/:id', require('./api/eventRegister/index').updateId);
   router.delete('/eventRegister/:id', require('./api/eventRegister/index').delete);
 
+
   return router;
 }
-
-
-
-router.post('/signup', require('./views/signup').init);
-var oauth = require('./oauth2');
-router.post('/login', oauth.token);
-exports.oauth2 = oauth;
