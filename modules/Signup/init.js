@@ -2,7 +2,7 @@ exports = module.exports = function(req, res) {
   var request = require('request')
     , acceptedAuth = {
         'facebook': 'https://graph.facebook.com/me?access_token=',
-        'google': 'https://www.googleapis.com/oauth2/v1/userinfo'
+        'google': 'https://www.googleapis.com/plus/v1/people/me'
       }
     , workflow = require('workflow')(req, res)
     , dataflow = {};
@@ -66,11 +66,18 @@ exports = module.exports = function(req, res) {
           } catch (err) {
             body = body;
           }
+          // console.log(body);
           if (req.body.user_id != body.id)
             return workflow.emit('exception', 'Supplied user and provider\'s user differ');
-          if (!body.email)
+          if (!body.emails)
             return workflow.emit('exception', 'Can\'t get email. Did you include email scope?');
           dataflow.social = body;
+          for (var i = 0; i < dataflow.social.emails.length; ++i) {
+            if (dataflow.social.emails[i].type == 'account') {
+              dataflow.social.email = dataflow.social.emails[i].value
+              break ;
+            }
+          }
           workflow.emit('checkDuplicateEmail');
         } else
           return workflow.emit('exception', JSON.stringify(error || response));
