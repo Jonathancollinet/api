@@ -157,13 +157,16 @@ exports = module.exports = function(req, res) {
   });
 
   workflow.on('send key', function(client, secret, user, device_id, device_name) {
-    return res.json(req.app.utils.Crypto.encrypt(req.app
+    var access_token = req.app.utils.Crypto.encrypt(req.app
       , 'client=' + client
-      + ':secret=' + secret
-      + ':user=' + user
-      + ':deviceID=' + device_id
-      + ':deviceName=' + new Buffer(device_name).toString('base64')
-    ));
+        + ':secret=' + secret
+        + ':user=' + user
+        + ':deviceID=' + device_id
+        + ':deviceName=' + new Buffer(device_name).toString('base64'));
+    return res.json({
+        access_token: new Buffer(access_token).toString()
+      , token_type: "Adok"
+    });
   });
 
   workflow.emit('checkRequest');

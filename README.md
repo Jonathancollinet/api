@@ -23,8 +23,15 @@ Envoyer une requête POST sur /signup contenant :
   - `defive_id=DEVICE_ID`
   - `device_name=DEVICE_NAME`
 
-Un appel réussi à /signup renvoit une chaine de caractère(CHAINE_BASE64) utilisée pour accéder à la route /login, concervez là.
-Un nouvel appel à /signup reverra une nouvelle chaine pouvant être utilisée pour accéder à /login.
+Un appel réussi à /signup renvoit un objet JSON :
+```json
+{
+  "access_token": ".......",
+  "token_type": "Adok"
+}
+```
+
+Les appels suivants à /signup reverra un nouvel objet json contenant les informations pour se connecter au service.
 
 Envoyer une requête POST sur /login contenant :
 - Dans le header
@@ -35,10 +42,10 @@ Envoyer une requête POST sur /login contenant :
 Un appel réussi à /login renvois un objet formé comme suit :
 ```json
 {
-    "access_token": "2d10b4c018c90b95503aeba737dd569843252a43fdae45fb4089439aca88b0e1",
-    "refresh_token": "36bde2d2099ece0b25d9bd2c70633b9cbace232e1ccfa898c0a891bf243e3c19",
-    "expires_in": 3600,
-    "token_type": "Bearer"
+  "access_token": "2d10b4c018c90b95503aeba737dd569843252a43fdae45fb4089439aca88b0e1",
+  "refresh_token": "36bde2d2099ece0b25d9bd2c70633b9cbace232e1ccfa898c0a891bf243e3c19",
+  "expires_in": 3600,
+  "token_type": "Bearer"
 }
 ```
 
