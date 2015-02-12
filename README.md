@@ -27,6 +27,7 @@ Un appel réussi à /signup renvoit un objet JSON :
 ```json
 {
   "access_token": ".......",
+  "expires_in": 600,
   "token_type": "Adok"
 }
 ```
