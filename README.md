@@ -72,3 +72,97 @@ Dans le body
 - `refresh_token=REFRESH_TOKEN`
 
 Si l'appel se passe correctement, un nouvel objet json est renvoyé.
+
+## Routes
+
+Pour la plupart des modèles, un CRUD est disponible.
+Le ':id' correspond à un ID.
+
+GET -> récupère
+- /X/findOne : renvoi un X.
+- /X/count : renvoi le nombre de X.
+- /X/:id : renvoi l'id depuis X.
+- /X/:id/exists : renvoi si l'id depuis X existe.
+
+POST -> crée
+- /X : créer un X
+
+PUT -> met à jour
+- /X/:id : met à jour l'id depuis X.
+
+DELETE -> supprime
+- /X/:id : supprime l'id depuis X.
+
+### Ensemble des routes
+
+### me -> retourne des informations concernant l'user connecté
+get('/me');
+
+### users
+get('/users');
+get('/users/findOne');
+get('/users/count');
+get('/users/:id');
+get('/users/:id/exists');
+get('/users/:id/eventCounter'); -> retourne le nombre d'event auquel cet user à participé.
+put('/users/:id');
+
+### events
+get('/events');
+get('/events/findOne');
+get('/events/count');
+get('/events/:id');
+get('/events/:id/exists');
+post('/events');
+put('/events/:id');
+delete('/events/:id');
+
+### eventRegisters
+get('/eventregister');
+get('/eventregister/findOne');
+get('/eventregister/count');
+get('/eventregister/:id');
+get('/eventregister/:id/exists');
+post('/eventregister');
+put('/eventregister/:id');
+delete('/eventregister/:id');
+
+### notifications
+get('/notifications');
+get('/notifications/findOne');
+get('/notifications/count');
+get('/notifications/:id');
+get('/notifications/:id/exists');
+post('/notifications');
+put('/notifications/:id');
+delete('/notifications/:id');
+
+### badges
+get('/badges');
+get('/badges/findOne');
+get('/badges/count');
+get('/badges/:id');
+get('/badges/:id/exists');
+post('/badges');
+put('/badges/:id');
+delete('/badges/:id');
+
+### validations
+get('/validations');
+get('/validations/findOne');
+get('/validations/count');
+get('/validations/:id');
+get('/validations/:id/exists');
+post('/validations');
+put('/validations/:id');
+delete('/validations/:id');
+
+### eventRegisters
+get('/eventRegister');
+get('/eventRegister/findOne');
+get('/eventRegister/count');
+get('/eventRegister/:id');
+get('/eventRegister/:id/exists');
+post('/eventRegister');
+put('/eventRegister/:id');
+delete('/eventRegister/:id');
