@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 
 exports.Router = function(app, passport) {
-  router.all('*', app.utils.RateLimit.limiter);
+  if (app.Config.rateLimits.enabled)
+    router.all('*', app.utils.RateLimit.limiter);
   router.all('*', passport.authenticate(['bearer'], { session: false }));
 
   router.use(function(req, res, next) {
