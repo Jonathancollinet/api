@@ -96,11 +96,11 @@ DELETE -> supprime
 ### Ensemble des routes
 
 ### me -> retourne des informations concernant l'user connecté
-get('/me');
+>get('/me');
 
 ### users
-get('/users');
-get('/users/findOne');
+>get('/users');
+>get('/users/findOne');
 get('/users/count');
 get('/users/:id');
 get('/users/:id/exists');
