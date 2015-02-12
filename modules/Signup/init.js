@@ -31,6 +31,7 @@ exports = module.exports = function(req, res) {
     req.app.db.models.Client.findOne({ client: { id: req.body.client_id, secret: req.body.client_secret } }).exec(function(err, res) {
       if (err || !res)
         return workflow.emit('exception', err || 'Unauthozired Client');
+      workflow.outcome.client = res;
       workflow.emit('getSocialData');
     })
   });
@@ -95,10 +96,10 @@ exports = module.exports = function(req, res) {
       if (err)
         return workflow.emit('exception', err);
       if (user) {
-        return workflow.emit('send key'
+        workflow.outcome.user = user;
+        return workflow.emit('find access token'
           , req.body.client_id
           , req.body.client_secret
-          , user._id
           , req.body.device_id
           , req.body.device_name);
       }
@@ -146,26 +147,69 @@ exports = module.exports = function(req, res) {
       req.app.db.models.User.findByIdAndUpdate(workflow.outcome.user._id, { $set: { roles: { account: account._id } } }).exec(function(err, count, res) {
         if (err)
           return workflow.emit('exception', err);
-        return workflow.emit('send key'
+        return workflow.emit('create access token'
           , req.body.client_id
           , req.body.client_secret
-          , workflow.outcome.user._id
           , req.body.device_id
           , req.body.device_name);
       });
     });
   });
 
-  workflow.on('send key', function(client, secret, user, device_id, device_name) {
-    var access_token = req.app.utils.Crypto.encrypt(req.app
-      , 'client=' + client
-        + ':secret=' + secret
-        + ':user=' + user
-        + ':deviceID=' + device_id
-        + ':deviceName=' + new Buffer(device_name).toString('base64'));
+  workflow.on('find access token', function(client, secret, device_id, device_name) {
+    req.app.db.models.AdokAccessToken.findOne({
+        user: workflow.outcome.user._id
+      , client: workflow.outcome.client._id
+      , device: { id: device_id, name: device_name }
+    }).populate('client').exec(function(err, token) {
+      if (err)
+        return workflow.emit('exception', err);
+      if (!token)
+        return workflow.emit('create access token', client, secret, device_id, device_name);
+      if (Math.round((Date.now()-token.created)/1000) > req.app.Config.token.adok.expires_in)
+        return workflow.emit('delete token', token);
+      return workflow.emit('send Adok key', token);
+    });
+    // var access_token = req.app.utils.Crypto.encrypt(req.app
+    //   , 'client=' + client
+    //     + ':secret=' + secret
+    //     + ':user=' + user
+    //     + ':deviceID=' + device_id
+    //     + ':deviceName=' + new Buffer(device_name).toString('base64'));
+  });
+
+  workflow.on('create access token', function(client, secret, device_id, device_name) {
+    req.app.db.models.AdokAccessToken.create({
+            user: workflow.outcome.user._id
+          , client: workflow.outcome.client._id
+          , device: { id: device_id, name: device_name }
+          , token: req.app.utils.Tokens.Generate()
+        }
+      , function(err, token) {
+        if (err)
+          return workflow.emit('exception', err);
+        return workflow.emit('send Adok key', token);
+      });
+  });
+
+
+  workflow.on('delete token', function(token) {
+    token.remove(function(err) {
+      if (err)
+        return workflow.emit('exception', err);
+      return workflow.emit('create access token'
+        , token.client.client.id
+        , token.client.client.secret
+        , token.device.id
+        , token.device.name);
+    });
+  });
+
+  workflow.on('send Adok key', function(token) {
     return res.json({
-        access_token: new Buffer(access_token).toString()
-      , token_type: "Adok"
+        access_token: token.token
+      , expires_in: req.app.Config.token.adok.expires_in - Math.round((Date.now()-token.created)/1000)
+      , token_type: 'Adok'
     });
   });
 

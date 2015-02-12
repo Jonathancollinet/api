@@ -15,6 +15,9 @@ exports.mongodb = {
   uri: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGO_URL || 'localhost/adok?safe=true'
 };
 exports.token = {
+  adok: {
+    expires_in: 600
+  },
   expires_in: process.env.TOKEN_LIFE || 3600,
   crypto: {
     algorithm: 'aes-256-gcm',

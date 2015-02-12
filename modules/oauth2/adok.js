@@ -87,29 +87,13 @@ module.exports = function(options, issue) {
     var parts = authorization.split(' ')
     if (parts.length < 2) { return this.fail(400); }
 
-    var scheme = parts[0]
-      , credentials = new Buffer(parts[1], 'base64').toString().split(':')
-      , splitedCred = {};
-    for (var i = 0; i < credentials.length; ++i) {
-      var tmp = credentials[i].split('=');
-      splitedCred[tmp[0]] = tmp[1];
-    }
+    var scheme = parts[0];
 
     if (!/Adok/i.test(scheme)) { return this.fail(this._challenge()); }
-    if (credentials.length < 2) { return this.fail(400); }
-    if (!splitedCred.data || !splitedCred.tag) { return this.fail(this._challenge()); }
-
-    var infos = req.app.utils.Crypto.decrypt(req.app, splitedCred.data, splitedCred.tag);
 
     var client = req[userProperty]
-      , clientId = infos.client
-      , deviceName = new Buffer(infos.deviceName, 'base64').toString()
-      , deviceId = infos.deviceID
+      , accessToken = parts[1]
       , scope = req.body.scope;
-
-    if (!client || !clientId || !deviceName || !deviceId) { return this.fail(this._challenge()); }
-    // if (!deviceID) { return next(new TokenError('Missing required parameter: device', 'invalid_request')); }
-    // if (!clientId) { return next(new TokenError('Missing required parameter: client_id', 'invalid_request')); }
 
     if (scope) {
       for (var i = 0, len = separators.length; i < len; i++) {
@@ -126,6 +110,7 @@ module.exports = function(options, issue) {
 
     function issued(err, accessToken, refreshToken, params) {
       if (err) { return next(err); }
+      console.log(accessToken);
       if (!accessToken) { return next(new TokenError('Invalid resource owner credentials', 'invalid_grant')); }
       if (refreshToken && typeof refreshToken == 'object') {
         params = refreshToken;
@@ -148,11 +133,10 @@ module.exports = function(options, issue) {
     try {
       var arity = issue.length;
 
-      if (arity == 6) {
-        // issue(client, provider, clientId, clientSecret, clientToken, userId, scope, issued);
-        issue(client, clientId, deviceId, deviceName, scope, issued);
-      } else { // arity == 5
-        issue(client, clientId, deviceId, deviceName, issued);
+      if (arity == 4) {
+        issue(client, accessToken, scope, issued);
+      } else { // arity == 3
+        issue(client, accessToken, issued);
       }
     } catch (ex) {
       return next(ex);

@@ -14,71 +14,75 @@ var oauth2orize   = require('oauth2orize'),
 var server = oauth2orize.createServer();
 var app = {};
 
-server.exchange(utils.oauth2.adok(function(client, clientId, deviceId, deviceName, scope, done) {
+server.exchange(utils.oauth2.adok(function(client, accessToken, scope, done) {
   var workflow = new (require('events').EventEmitter)();
 
-  workflow.on('get Client ObjectId', function() {
-    app.db.models.Client.findOne({ 'client.id': clientId }).exec(function(err, res) {
-      if (err)
-        return workflow.emit('response', err);
-      workflow.emit('check if access token is still valide', res._id);
+  workflow.on('Find Access Token', function() {
+    app.db.models.AdokAccessToken.findOne({ token: accessToken }).exec(function(err, token) {
+      if (err || !token) { return workflow.emit('response', err || "Invalid Token"); }
+      if (Math.round((Date.now()-token.created)/1000) > config.token.adok.expires_in)
+        return workflow.emit('Detele Access Token', token);
+      return workflow.emit('Find Bearer Token', token);
     });
   });
 
-  workflow.on('check if access token is still valide', function(cl) {
-    app.db.models.AccessToken.findOne({ user: client._id, device: { id: deviceId, name: deviceName }, client: cl }).exec(function(err, token) {
-      if (err)
-        return workflow.emit('response', err);
+  workflow.on('Delete Access Token', function(token) {
+    token.remove(function(err) {
+      if (err) { return workflow.emit('response', err); }
 
-      if (!token || (Math.round((Date.now()-token.created)/1000) > config.token.expires_in))
-        return workflow.emit('delete refresh token', cl);
-      app.db.models.RefreshToken.findOne({ user: client._id, device: { id: deviceId, name: deviceName }, client: cl }).exec(function(err, refreshToken) {
-        if (err)
-          return workflow.emit('response', err);
+      return workflow.emit('response', 'Invalid Token');
+    })
+  });
 
-        return workflow.emit('response', null, token.token, refreshToken.token, { expires_in: config.token.expires_in - Math.round((Date.now()-token.created)/1000) });
+  workflow.on('Find Bearer Token', function(token) {
+    app.db.models.AccessToken.findOne({ user: token.user, client: token.client, device: { id: token.device.id, name: token.device.name } }).exec(function(err, accesToken) {
+      if (err) { return workflow.emit('response', err); }
+
+      if (accessToken && Math.round((Date.now()-accessToken.created)/1000) > config.token.expires_in) {
+        accessToken.remove(function(err) {
+          if (err) { return workflow.emit('response', err); }
+
+          app.db.models.RefreshToken.findOne({ user: token.user, client: token.client, device: { id: token.device.id, name: token.device.name } }).exec(function(err, refreshToken) {
+            if (err) { return workflow.emit('response', err); }
+
+            refreshToken.remove(function(err) {
+              if (err) { return workflow.emit('response', err); }
+
+              return workflow.emit('Create Bearer Token', token);
+            });
+          });
+        });
+      }
+      app.db.models.RefreshToken.findOne({ user: token.user, client: token.client, device: { id: token.device.id, name: token.device.name } }).exec(function(err, refreshToken) {
+        if (err) { return workflow.emit('response', err); }
+
+        return workflow.emit('response', null, accessToken, refreshToken, { expires_in: config.token.expires_in - Math.round((Date.now()-token.created)/1000) });
       });
     });
   });
 
-  workflow.on('delete refresh token', function(cl) {
-    app.db.models.RefreshToken.remove({ user: client._id, device: { id: deviceId, name: deviceName }, client: cl }, function(err) {
-      if (err)
-        return workflow.emit('response', err);
-      workflow.emit('delete access token', cl);
+  workflow.on('Create Bearer Token', function(token) {
+    app.db.models.AccessToken.create({ user: token.user, client: token.client, device: { id: token.device.id, name: token.device.name }, token: app.utils.Tokens.Generate() }, function(err, accessToken) {
+      if (err) { return workflow.emit('response', err); }
+
+      return workflow.emit('Create Bearer Refresh Token', token);
     });
   });
 
-  workflow.on('delete access token', function(cl) {
-    app.db.models.AccessToken.remove({ user: client._id, device: { id: deviceId, name: deviceName }, client: cl }, function(err) {
-      if (err)
-        return workflow.emit('response', err);
-      workflow.emit('create new access token', cl);
+  workflow.on('Create Bearer Refresh Token', function(token) {
+    app.db.models.RefreshToken.create({ user: token.user, client: token.client, device: { id: token.device.id, name: token.device.name }, token: app.utils.Tokens.Generate() }, function(err, refreshToken) {
+      if (err) { return workflow.emit('response', err); }
+
+      return workflow.emit('response', null, token, refreshToken);
     });
   });
 
-  workflow.on('create new access token', function(cl) {
-    app.db.models.AccessToken.create({ user: client._id, client: cl, device: { id: deviceId, name: deviceName }, token: app.utils.Tokens.Generate() }, function(err, token) {
-      if (err)
-        return workflow.emit('response', err);
-      workflow.emit('create new refresh token', cl, token.token);
-    });
+  workflow.on('response', function(err, token, refreshToken, options) {
+    if (err) { return done(new TokenError(err)); }
+    return done(null, token, refreshToken.token, options || { expires_in: config.token.expires_in });
   });
 
-  workflow.on('create new refresh token', function(cl, accessToken) {
-    app.db.models.RefreshToken.create({ user: client._id, client: cl, device: { id: deviceId, name: deviceName }, token: app.utils.Tokens.Generate() }, function(err, token) {
-      if (err)
-        return workflow.emit('response', err);
-      workflow.emit('response', null, accessToken, token.token);
-    })
-  });
-
-  workflow.on('response', function(err, accessToken, refreshToken, options) {
-    if (err) { return done(new TokenError(err))}
-    done(null, accessToken, refreshToken, options || { expires_in: config.token.expires_in });
-  });
-
-  workflow.emit('get Client ObjectId');
+  workflow.emit('Find Access Token');
 }));
 
 server.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken, scope, done) {

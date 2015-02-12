@@ -13,14 +13,14 @@ exports = module.exports = function(app, passport) {
       BearerStrategy          = require('passport-http-bearer').Strategy;
 
   passport.use(new AdokStrategy(
-    function(userid, client, clientSecret, deviceID, deviceName, done) {
-      app.db.models.Client.findOne({ client: { id: client, secret: clientSecret }}).exec(function(err, cl) {
-        if (err) { return donne(err) };
-        if (!cl) { return done(null, false); }
+    function(accessToken, done) {
+      app.db.models.AdokAccessToken.findOne({ token: accessToken }).exec(function(err, token) {
+        if (err) { return done(err); }
+        if (!token) { return done(null, false); }
 
-        var find = {};
-        app.db.models.User.findById(userid).populate('roles.account').exec(function(err, user) {
-          if (err || !user) { return done(new TokenError('Unknown user', 'invalid_request')); }
+        app.db.models.User.findById(token.user).populate('roles.account').exec(function(err, user) {
+          if (err) { return done(err); }
+          if (!user) { return done(new TokenError('Unknown user', 'invalid_request')); }
 
           return done(null, user);
         });
@@ -57,6 +57,7 @@ exports = module.exports = function(app, passport) {
   });
 
   passport.deserializeUser(function(id, done) {
+    console.log(id);
     req.app.db.models.User.findById(id).populate('roles.account').exec(function(err, user) {
       done(err, user);
     });

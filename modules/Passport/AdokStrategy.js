@@ -1,118 +1,163 @@
 /**
  * Module dependencies.
  */
-var passport = require('passport')
+var passport = require('passport').Strategy
   , util = require('util');
 
 
 /**
- * `AdokStrategy` constructor.
+ * Creates an instance of `Strategy`.
  *
  * The HTTP Adok authentication strategy authenticates requests based on
- * provider, token and userid credentials contained in the `Authorization` header
- * field.
+ * a adok token contained in the `Authorization` header field, `access_token`
+ * body parameter, or `access_token` query parameter.
  *
- * Applications must supply a `verify` callback which accepts `provider`, `token` and
- * `userid` credentials, and then calls the `done` callback supplying a
- * `user`, which should be set to `false` if the credentials are not valid.
- * If an exception occured, `err` should be set.
+ * Applications must supply a `verify` callback, for which the function
+ * signature is:
  *
- * Optionally, `options` can be used to change the authentication realm.
+ *     function(token, done) { ... }
+ *
+ * `token` is the adok token provided as a credential.  The verify callback
+ * is responsible for finding the user who posesses the token, and invoking
+ * `done` with the following arguments:
+ *
+ *     done(err, user, info);
+ *
+ * If the token is not valid, `user` should be set to `false` to indicate an
+ * authentication failure.  Additional token `info` can optionally be passed as
+ * a third argument, which will be set by Passport at `req.authInfo`, where it
+ * can be used by later middleware for access control.  This is typically used
+ * to pass any scope associated with the token.
  *
  * Options:
+ *
  *   - `realm`  authentication realm, defaults to "Users"
+ *   - `scope`  list of scope values indicating the required scope of the access
+ *              token for accessing the requested resource
  *
  * Examples:
  *
  *     passport.use(new AdokStrategy(
- *       function(provider, token, userid, done) {
+ *       function(token, done) {
+ *         User.findByToken({ token: token }, function (err, user) {
+ *           if (err) { return done(err); }
+ *           if (!user) { return done(null, false); }
+ *           return done(null, user, { scope: 'read' });
+ *         });
  *       }
  *     ));
  *
+ * For further details on HTTP Adok authentication, refer to [The OAuth 2.0 Authorization Protocol: Adok Tokens](http://tools.ietf.org/html/draft-ietf-oauth-v2-adok)
  *
- * @param {Object} options
+ * @constructor
+ * @param {Object} [options]
  * @param {Function} verify
  * @api public
  */
-function AdokStrategy(options, verify) {
+function Strategy(options, verify) {
   if (typeof options == 'function') {
     verify = options;
     options = {};
   }
-  if (!verify) throw new Error('HTTP Adok authentication strategy requires a verify function');
+  if (!verify) { throw new TypeError('HTTPAdokStrategy requires a verify callback'); }
 
   passport.Strategy.call(this);
   this.name = 'adok';
   this._verify = verify;
   this._realm = options.realm || 'Users';
+  if (options.scope) {
+    this._scope = (Array.isArray(options.scope)) ? options.scope : [ options.scope ];
+  }
   this._passReqToCallback = options.passReqToCallback;
 }
 
 /**
  * Inherit from `passport.Strategy`.
  */
-util.inherits(AdokStrategy, passport.Strategy);
+util.inherits(Strategy, passport.Strategy);
 
 /**
- * Authenticate request based on the contents of a HTTP Basic authorization
- * header.
+ * Authenticate request based on the contents of a HTTP Adok authorization
+ * header, body parameter, or query parameter.
  *
  * @param {Object} req
  * @api protected
  */
-AdokStrategy.prototype.authenticate = function(req) {
-  var authorization = req.headers['authorization'];
-  if (!authorization) { return this.fail(this._challenge()); }
+Strategy.prototype.authenticate = function(req) {
+  var token;
 
-  var parts = authorization.split(' ')
-  if (parts.length < 2) { return this.fail(400); }
+  if (req.headers && req.headers.authorization) {
+    var parts = req.headers.authorization.split(' ');
+    if (parts.length == 2) {
+      var scheme = parts[0]
+        , credentials = parts[1];
 
-  var scheme = parts[0]
-    , credentials = new Buffer(parts[1], 'base64').toString().split(':')
-    , splitedCred = {};
-  for (var i = 0; i < credentials.length; ++i) {
-    var tmp = credentials[i].split('=');
-    splitedCred[tmp[0]] = tmp[1];
+      if (/^Adok$/i.test(scheme)) {
+        token = credentials;
+      }
+    } else {
+      return this.fail(400);
+    }
   }
-  if (!/Adok/i.test(scheme)) { return this.fail(this._challenge()); }
-  if (credentials.length < 2) { return this.fail(400); }
-  if (!splitedCred.data || !splitedCred.tag) { return this.fal(this._challenge()); }
 
-  var infos = req.app.utils.Crypto.decrypt(req.app, splitedCred.data, splitedCred.tag);
-
-  var userid = infos.user;
-  var client = infos.client;
-  var clientSecret = infos.secret;
-  var deviceID = infos.deviceID;
-  var deviceName = new Buffer(infos.deviceName, 'base64').toString();
-  if (!userid || !client || !clientSecret || !deviceID || !deviceName) {
-    return this.fail(this._challenge());
+  if (req.body && req.body.access_token) {
+    if (token) { return this.fail(400); }
+    token = req.body.access_token;
   }
+
+  if (req.query && req.query.access_token) {
+    if (token) { return this.fail(400); }
+    token = req.query.access_token;
+  }
+
+  if (!token) { return this.fail(this._challenge()); }
+
   var self = this;
 
-  function verified(err, user) {
+  function verified(err, user, info) {
     if (err) { return self.error(err); }
-    if (!user) { return self.fail(self._challenge()); }
-    self.success(user);
+    if (!user) {
+      if (typeof info == 'string') {
+        info = { message: info }
+      }
+      info = info || {};
+      return self.fail(self._challenge('invalid_token', info.message));
+    }
+    self.success(user, info);
   }
+
   if (self._passReqToCallback) {
-    this._verify(req, userid, client, clientSecret, deviceID, deviceName, verified);
+    this._verify(req, token, verified);
   } else {
-    this._verify(userid, client, clientSecret, deviceID, deviceName, verified);
+    this._verify(token, verified);
   }
-}
+};
 
 /**
- * Authentication challenge.
+ * Build authentication challenge.
  *
  * @api private
  */
-AdokStrategy.prototype._challenge = function() {
-  return 'Adok realm="' + this._realm + '"';
-}
+Strategy.prototype._challenge = function(code, desc, uri) {
+  var challenge = 'Adok realm="' + this._realm + '"';
+  if (this._scope) {
+    challenge += ', scope="' + this._scope.join(' ') + '"';
+  }
+  if (code) {
+    challenge += ', error="' + code + '"';
+  }
+  if (desc && desc.length) {
+    challenge += ', error_description="' + desc + '"';
+  }
+  if (uri && uri.length) {
+    challenge += ', error_uri="' + uri + '"';
+  }
+
+  return challenge;
+};
 
 
 /**
- * Expose `AdokStrategy`.
+ * Expose `Strategy`.
  */
-module.exports = AdokStrategy;
+module.exports = Strategy;
