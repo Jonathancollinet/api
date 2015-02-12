@@ -5,6 +5,13 @@ exports.Router = function(app, passport) {
   router.all('*', app.utils.RateLimit.limiter);
   router.all('*', passport.authenticate(['bearer'], { session: false }));
 
+  router.use(function(req, res, next) {
+    res.set({
+        'Pragma': 'public'
+      , 'Cache-Control': 'private, no-cache'
+    });
+    next();
+  });
   // me
   router.get('/me', require('./api/users/index').me);
 
