@@ -8,7 +8,7 @@ exports.Router = function(app, passport) {
 
   router.use(function(req, res, next) {
     res.set({
-        'Pragma': 'public'
+        'Pragma': 'private'
       , 'Cache-Control': 'private, no-cache'
     });
     next();
