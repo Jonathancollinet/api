@@ -8,8 +8,9 @@ var config = require('./config'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
-    mongoose = require('mongoose')
-    passport = require('passport');
+    mongoose = require('mongoose'),
+    passport = require('passport'),
+    mediaserver = require('media-server');
 
 var SpdyOptions = {
   key: config.ssl.key,
@@ -48,7 +49,7 @@ app.set('view engine', 'jade');
 app.locals.pretty = true;
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
+// app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -63,6 +64,9 @@ oauth2.setApp(app);
 
 
 require('./passport')(app, passport);
+
+/* Mount /media router */
+app.use('/media', mediaserver);
 
 /* GET home page. */
 app.get('/', require('./views/homepage').init);
@@ -113,12 +117,14 @@ if (app.Config.ssl.enabled) {
   var server = spdy.createServer(SpdyOptions, app);
 
   server.listen(app.get('port'), function() {
-    console.log('Server listening on HTTPS -> https://localhost:' + server.address().port);
+    console.log('API listening on HTTPS -> https://localhost:' + server.address().port);
+    console.log('image-server listening on HTTPS -> https://localhost:' + server.address().port + '/media/');
   });
 } else {
   var server = http.createServer(app);
 
   server.listen(app.get('port'), function() {
-    console.log('Server listening on HTTP -> http://localhost:' + server.address().port)
+    console.log('Server listening on HTTP -> http://localhost:' + server.address().port);
+    console.log('image-server listening on HTTP -> http://localhost:' + server.address().port + '/media/');
   });
 }
