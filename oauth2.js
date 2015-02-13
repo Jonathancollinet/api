@@ -139,7 +139,7 @@ server.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken,
 }));
 
 exports.token = [
-  passport.authenticate(['adok'], { session: false }),
+  passport.authenticate(['adok', 'basic'], { session: false }),
   server.token(),
   server.errorHandler()
 ];

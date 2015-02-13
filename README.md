@@ -18,8 +18,8 @@ Envoyer une requête POST sur /signup contenant :
   - `auth_type=google/facebook`
   - `access_token=TOKEN`
   - `user_id=USER_ID`(optional)
-  - `client_id=USER_ID`
-  - `client_secret=USER_ID`
+  - `client_id=CLIENT_ID`
+  - `client_secret=CLIENT_SECRET`
   - `defive_id=DEVICE_ID`
   - `device_name=DEVICE_NAME`
 
@@ -66,7 +66,7 @@ Pour effectuer une requête à l'API il faut ajouter dans le header de chacune d
 
 Pour générer un nouveau token, vous devez envoyer une requête POST sur /login avec :
 Dans le header
-- `Authorization: Adok CHAINE_BASE64`
+- `Authorization: Basic CHAINE_BASE64` où CHAINE_BASE64 doit être générer comme suite base64encode(client_id+':'+client_secret)
 Dans le body
 - `grand_type=refresh_token`
 - `refresh_token=REFRESH_TOKEN`
