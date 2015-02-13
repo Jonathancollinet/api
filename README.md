@@ -171,3 +171,11 @@ DELETE -> supprime
 - post('/validations');
 - put('/validations/:id');
 - delete('/validations/:id');
+
+
+# Testing
+
+```sh
+npm install -g mocha
+mocha tests/getnerateEvents.js
+```

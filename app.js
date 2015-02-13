@@ -20,6 +20,7 @@ var SpdyOptions = {
 
 
 var routes = require('./routes.js');
+
 var app = express();
 exports.app = app;
 
@@ -66,6 +67,7 @@ oauth2.setApp(app);
 require('./passport')(app, passport);
 
 /* Mount /media router */
+app.mediaserver = mediaserver;
 app.use('/media', mediaserver);
 
 /* GET home page. */

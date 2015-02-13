@@ -37,5 +37,4 @@ options = {
 };
 
 walker = walk.walkSync(__dirname, options);
-console.log(modules);
 module.exports = modules;

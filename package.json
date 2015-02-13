@@ -37,5 +37,10 @@
     "uid2": "0.0.3",
     "utils-merge": "^1.0.0",
     "walk": "^2.3.9"
+  },
+  "devDependencies": {
+    "fake-identity": "^1.0.6",
+    "mocha": "^2.1.0",
+    "moment": "^2.9.0"
   }
 }
