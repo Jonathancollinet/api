@@ -16,7 +16,7 @@ Vérifiez de nouveau que convert est bien installé.
 
 Si vous exécutez `npm install` et qu'une erreur liée à python est affichée, vérifier que python2.7 est bien installé et exécutez `npm install --python=python27`
 
-Une fois tout installé vous pouvez lancez l'application.
+Une fois tout installé vous pouvez lancer l'application.
 
 ## How To
 
