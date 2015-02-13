@@ -14,8 +14,8 @@ exports = module.exports = function(req, res) {
       return workflow.emit('exception', 'Unauthorized Authentification Type')
     if (!req.body.access_token)
       return workflow.emit('exception', 'Provider Access Token Required');
-    if (!req.body.user_id)
-      return workflow.emit('exception', 'Provider User ID Required');
+    // if (!req.body.user_id)
+    //   return workflow.emit('exception', 'Provider User ID Required');
     if (!req.body.client_id)
       return workflow.emit('exception', 'Client ID Required');
     if (!req.body.client_secret)
@@ -46,7 +46,7 @@ exports = module.exports = function(req, res) {
             body = body;
           }
           if (!error && response.statusCode == 200) {
-            if (req.body.user_id != body.id)
+            if (req.body.user_id && req.body.user_id != body.id)
               return workflow.emit('exception', 'Supplied user and provider\'s user differ');
             dataflow.social = body;
             workflow.emit('checkDuplicateEmail');
@@ -68,7 +68,7 @@ exports = module.exports = function(req, res) {
             body = body;
           }
           // console.log(body);
-          if (req.body.user_id != body.id)
+          if (req.body.user_id && req.body.user_id != body.id)
             return workflow.emit('exception', 'Supplied user and provider\'s user differ');
           if (!body.emails)
             return workflow.emit('exception', 'Can\'t get email. Did you include email scope?');
