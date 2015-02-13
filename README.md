@@ -86,7 +86,7 @@ Pour générer un nouveau token, vous devez envoyer une requête POST sur /login
 Dans le header
 - `Authorization: Basic CHAINE_BASE64` où CHAINE_BASE64 doit être générer comme suite base64encode(client_id+':'+client_secret)
 Dans le body
-- `grand_type=refresh_token`
+- `grant_type=refresh_token`
 - `refresh_token=REFRESH_TOKEN`
 
 Si l'appel se passe correctement, un nouvel objet json est renvoyé.
