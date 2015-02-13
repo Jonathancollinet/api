@@ -4,7 +4,7 @@
 
 Liste des informations nécessaires lors de l'inscription :
 - Nom du provider utilisé (Google/Facebook)
-- ID de l'utilisateur sur ce provider*
+- ID de l'utilisateur sur ce provider* (optional)
 - Token utilisé pour accéder à l'API du provider*
 - Nom du device
 - ID de l'application (contenu dans la db)
@@ -17,7 +17,7 @@ Envoyer une requête POST sur /signup contenant :
 - Dans le body
   - `auth_type=google/facebook`
   - `access_token=TOKEN`
-  - `user_id=USER_ID`
+  - `user_id=USER_ID`(optional)
   - `client_id=USER_ID`
   - `client_secret=USER_ID`
   - `defive_id=DEVICE_ID`
