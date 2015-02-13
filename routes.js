@@ -22,6 +22,7 @@ exports.Router = function(app, passport) {
   router.get('/users/count', require('./api/users/index').count);
   router.get('/users/:id', require('./api/users/index').findId);
   router.get('/users/:id/exists', require('./api/users/index').exists);
+  router.get('/users/:id/eventCounter', require('./api/users/index').listAllForId);
   // router.post('/users', require('./api/users/index').create);
   router.put('/users/:id', require('./api/users/index').updateId);
   // router.delete('/users/:id', require('./api/users/index').delete);
@@ -85,7 +86,6 @@ exports.Router = function(app, passport) {
   router.post('/eventRegister', require('./api/eventRegister/index').create);
   router.put('/eventRegister/:id', require('./api/eventRegister/index').updateId);
   router.delete('/eventRegister/:id', require('./api/eventRegister/index').delete);
-
 
   return router;
 }

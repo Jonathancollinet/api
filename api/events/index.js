@@ -1,5 +1,5 @@
 exports.listAll = function(req, res) {
-	req.app.db.models.Event.find().exec(function(err, row) {
+	req.app.db.models.Event.find().sort('-date').skip(req.params.from).limit(req.params.to).exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
 		else

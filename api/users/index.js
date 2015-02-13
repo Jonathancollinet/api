@@ -21,6 +21,15 @@ exports.listAll = function(req, res) {
 	});
 }
 
+exports.listAllForId = function(req, res) {
+	req.app.db.models.eventRegister.find({account: {_id: req.params.id}}).count().exec(function(err, row) {
+		if (!err)
+			res.json({data: row});
+		else
+			res.json({data: err});
+	});
+}
+
 exports.findOne = function(req, res) {
 	req.app.db.models.User.findOne().populate("roles.account").exec(function(err, row) {
 		if (!err)
