@@ -113,8 +113,8 @@ exports = module.exports = function(req, res) {
       email: dataflow.social.email,
       search: [
         dataflow.social.email || '',
-        dataflow.social.first_name || dataflow.social.given_name,
-        dataflow.social.last_name || dataflow.social.family_name
+        dataflow.social.first_name || dataflow.social.name.givenName,
+        dataflow.social.last_name || dataflow.social.name.familyName
       ]
     };
     toCreate[req.body.auth_type] = dataflow.social;
@@ -129,9 +129,9 @@ exports = module.exports = function(req, res) {
   workflow.on('createAccount', function() {
     var toCreate = {
       isVerified: 'yes',
-      'name.first': dataflow.social.first_name || dataflow.social.given_name,
-      'name.last': dataflow.social.last_name || dataflow.social.family_name,
-      'name.full': (dataflow.social.first_name || dataflow.social.given_name)+' '+(dataflow.social.last_name || dataflow.social.family_name),
+      'name.first': dataflow.social.first_name || dataflow.social.name.givenName,
+      'name.last': dataflow.social.last_name || dataflow.social.name.familyName,
+      'name.full': (dataflow.social.first_name || dataflow.social.name.givenName)+' '+(dataflow.social.last_name || dataflow.social.name.familyName),
       user: {
         id: workflow.outcome.user._id,
         email: workflow.outcome.user.email
