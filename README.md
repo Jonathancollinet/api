@@ -116,36 +116,33 @@ DELETE -> supprime
 ### me -> retourne des informations concernant l'user connecté
 - get('/me');
 
-### users
-- get('/users');
-- get('/users/findOne');
-- get('/users/count');
-- get('/users/:id');
-- get('/users/:id/exists');
+### users (Pour les users)
+- get('/users'); (tout les users)
+- get('/users/findOne'); (un user au pif)
+- get('/users/count'); (nombre d'users total)
+- get('/users/:id'); (ce user)
+- get('/users/:id/exists'); (si ce user existe)
 - get('/users/:id/eventCounter'); -> retourne le nombre d'event auquel cet user à participé.
 - put('/users/:id');
 
-### events
+### events (un défi)
 - get('/events');
 - get('/events/findOne');
 - get('/events/count');
 - get('/events/:id');
 - get('/events/:id/exists');
-- post('/events');
-- put('/events/:id');
-- delete('/events/:id');
+- post('/events'); (créer un défi)
+- put('/events/:id'); (met a jour ce défi)
+- delete('/events/:id'); (supprime ce défi)
 
-### eventRegisters
-- get('/eventregister');
-- get('/eventregister/findOne');
-- get('/eventregister/count');
+### eventRegisters (liste des users enregistré a un défi) incomplet
 - get('/eventregister/:id');
 - get('/eventregister/:id/exists');
 - post('/eventregister');
 - put('/eventregister/:id');
 - delete('/eventregister/:id');
 
-### notifications
+### notifications (à remplacer)
 - get('/notifications');
 - get('/notifications/findOne');
 - get('/notifications/count');
@@ -155,7 +152,7 @@ DELETE -> supprime
 - put('/notifications/:id');
 - delete('/notifications/:id');
 
-### badges
+### badges (les badges)
 - get('/badges');
 - get('/badges/findOne');
 - get('/badges/count');
@@ -165,7 +162,7 @@ DELETE -> supprime
 - put('/badges/:id');
 - delete('/badges/:id');
 
-### validations
+### validations (validation des users par rapport a un défis) incomplet
 - get('/validations');
 - get('/validations/findOne');
 - get('/validations/count');
@@ -174,13 +171,3 @@ DELETE -> supprime
 - post('/validations');
 - put('/validations/:id');
 - delete('/validations/:id');
-
-### eventRegisters
-- get('/eventRegister');
-- get('/eventRegister/findOne');
-- get('/eventRegister/count');
-- get('/eventRegister/:id');
-- get('/eventRegister/:id/exists');
-- post('/eventRegister');
-- put('/eventRegister/:id');
-- delete('/eventRegister/:id');
