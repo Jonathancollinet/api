@@ -126,7 +126,35 @@ DELETE -> supprime
 - put('/users/:id');
 
 ### events (un défi)
-- get('/events');
+- get('/events');  utilisé pour récupérer la liste des évènements
+  - Liste des paramètres disponibles
+    - `limit` permet de changer le nombre d'objets renvoyés (Défaut: 20)
+    - `sort_by` permet de changer l'attribut servant à trier (Défaut: date)
+    - `sort_order` permet de changer l'ordre du tri (Défaut: -1)
+      - valeurs possibles : 1/-1(Ascendant/Descendant)
+    - `last_item` Permet de récupérer la suite des enregistrement. Si fourni, doit contenir la `date` du dernier élément contenu dans `items`
+    - Exemple : /events?last_item=2015-06-12T22:09:35.395Z
+  - Renvoit un objet formé comme suit :
+```json
+{
+    "items": [
+      {
+            "_id": "54de842f01783d940cd39335",
+            "type": 0,
+            "category": 1,
+            "date": "2015-06-12T22:09:35.395Z",
+            "date2": "2015-06-12T22:09:35.395Z",
+            "acc": "54d9dd4d4088b7702b73dd95",
+            "timeCreated": "2015-02-13T23:09:35.623Z",
+            "numOfPtc": 0,
+            "desc": "",
+            "title": "Northwind Traders"
+        },
+        ...
+    ],
+    "has_more": true|false
+}
+```
 - get('/events/findOne');
 - get('/events/count');
 - get('/events/:id');
@@ -155,7 +183,7 @@ DELETE -> supprime
 ### badges (les badges)
 - get('/badges');
 - get('/badges/findOne');
-- get('/badges/count');
+- get('/badges/count');---
 - get('/badges/:id');
 - get('/badges/:id/exists');
 - post('/badges');
@@ -177,5 +205,5 @@ DELETE -> supprime
 
 ```sh
 npm install -g mocha
-mocha tests/getnerateEvents.js
+mocha tests/generateEvents.js
 ```

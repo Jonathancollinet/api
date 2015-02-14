@@ -1,9 +1,27 @@
 exports.listAll = function(req, res) {
-	req.app.db.models.Event.find().exec(function(err, row) {
-		if (!err)
-			res.json({data: row});
-		else
-			res.json({data: err});
+	var options = {
+			limit: req.query.limit || 20
+		, sort: {}
+		, filters: {}
+		, keys: '_id type category date date2 acc timeCreated numOfPtc desc title'
+	};
+	if (req.query.sort_by) {
+		options.sort[req.query.sort_by] = req.query.sort_order ? parseInt(req.query.sort_order) : -1;
+	} else {
+		options.sort = { date: -1 };
+	}
+	if (req.query.last_item) {
+		if (options.sort.date == -1) {
+			options.filters = { date: { $lt: req.query.last_item } };
+		} else {
+			options.filters = { date: { $gt: req.query.last_item } };
+		}
+	}
+	console.log(options);
+	req.app.db.models.Event.paginate(options, function(err, rows) {
+		if (err)
+			return next(err);
+		res.json(rows);
 	});
 }
 
