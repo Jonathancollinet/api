@@ -132,7 +132,7 @@ DELETE -> supprime
     - `sort_by` permet de changer l'attribut servant à trier (Défaut: date)
     - `sort_order` permet de changer l'ordre du tri (Défaut: -1)
       - valeurs possibles : 1/-1(Ascendant/Descendant)
-    - `last_item` Permet de récupérer la suite des enregistrement. Si fourni, doit contenir la `date` du dernier élément contenu dans `items`
+    - `last_item` Permet de récupérer la suite des évènements. Si fourni, doit contenir la `date` du dernier élément contenu dans `items`
     - Exemple : /events?last_item=2015-06-12T22:09:35.395Z
   - Renvoit un objet formé comme suit :
 ```json
@@ -152,9 +152,10 @@ DELETE -> supprime
         },
         ...
     ],
-    "has_more": true|false
+    "has_more": true
 }
 ```
+  - `has_more` vaut true si il reste des évènements à récupérer (utilisez alors `last_item`)
 - get('/events/findOne');
 - get('/events/count');
 - get('/events/:id');
