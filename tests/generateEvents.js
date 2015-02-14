@@ -28,14 +28,14 @@ describe('test', function(){
       assert(app.db.models.Account);
     });
     it('should find an user', function() {
-      app.db.models.User.findOne().exec(function(err, res) {
+      app.db.models.User.findOne().skip(1).exec(function(err, res) {
         if (err) { throw new Error(err); }
         user = res;
         assert(res);
       })
     })
     it('should write to DB', function() {
-      var newUsers = Identity.generate(500);
+      var newUsers = Identity.generate(10);
       var allToSave = [];
       for (var i in newUsers) {
         var self = newUsers[i];

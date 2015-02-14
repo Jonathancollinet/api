@@ -46,5 +46,18 @@ exports = module.exports = function(app, mongoose) {
     });
     next();
   });
+
+  accountSchema.methods.getname = function() {
+    return this.name.full;
+  };
+
+  accountSchema.methods.getfirst_name = function() {
+    return this.name.first;
+  };
+
+  accountSchema.methods.getlast_name = function() {
+    return this.name.last;
+  };
+
   app.db.model('Account', accountSchema);
 };

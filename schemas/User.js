@@ -39,6 +39,10 @@ exports = module.exports = function(app, mongoose) {
     return returnUrl;
   };
 
+  userSchema.methods.getprovider = function() {
+    return this.facebook ? 'facebook' : 'google';
+  };
+
   userSchema.statics.encryptPassword = function(password) {
     return require('crypto').createHmac('sha512', app.get('crypto-key')).update(password).digest('hex');
   };

@@ -37,6 +37,7 @@ exports = module.exports = function(app, passport) {
         app.db.models.RefreshToken.findOne({ token: req.body.refresh_token }).populate('user').exec(function(err, refreshToken) {
           if (err) { return done(err); }
           if (!refreshToken) { return done(null, false); }
+
           return done(null, refreshToken.user, refreshToken.token);
         });
       });

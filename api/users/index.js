@@ -4,7 +4,7 @@ exports.me = function(req, res, next) {
 	res.json({
 		provider: req.facebook ? 'facebook' : 'google',
 		email: req.user.email,
-		picture: '',
+		picture: req.app.Config.imageUrl + req.user.roles.account.picture,
 		name: req.user.roles.account.name.full,
 		first_name: req.user.roles.account.name.first,
 		last_name: req.user.roles.account.name.last,

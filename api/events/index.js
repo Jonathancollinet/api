@@ -7,11 +7,10 @@ exports.listAll = function(req, res) {
 		, populate: [{
 				path: 'acc',
 				keys: '_id email roles.account',
-
 			}]
 		, subPopulate: {
 				path: 'acc.roles.account',
-				keys: 'picture name',
+				keys: 'picture getname getfirst_name getlast_name',
 				model: req.app.db.models.Account
 			}
 	};

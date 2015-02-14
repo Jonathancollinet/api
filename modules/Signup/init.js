@@ -1,10 +1,16 @@
+var request = require('request')
+  , httprequest = require('http')
+  , formData = require('form-data')
+  , fs = require('fs')
+  , mmmagic = require('mmmagic')
+  , magic = new mmmagic.Magic(mmmagic.MAGIC_MIME_TYPE)
+  , acceptedAuth = {
+      'facebook': 'https://graph.facebook.com/me?access_token=',
+      'google': 'https://www.googleapis.com/plus/v1/people/me'
+  };
+
 exports = module.exports = function(req, res) {
-  var request = require('request')
-    , acceptedAuth = {
-        'facebook': 'https://graph.facebook.com/me?access_token=',
-        'google': 'https://www.googleapis.com/plus/v1/people/me'
-      }
-    , workflow = require('workflow')(req, res)
+  var workflow = require('workflow')(req, res)
     , dataflow = {};
 
   workflow.on('checkRequest', function() {
@@ -92,18 +98,95 @@ exports = module.exports = function(req, res) {
     var find = {};
 
     find[req.body.auth_type+'.id'] = dataflow.social.id;
-    req.app.db.models.User.findOne(find).exec(function(err, user) {
+    req.app.db.models.User.findOne(find).populate('roles.account').exec(function(err, user) {
       if (err)
         return workflow.emit('exception', err);
       if (user) {
         workflow.outcome.user = user;
-        return workflow.emit('find access token'
-          , req.body.client_id
-          , req.body.client_secret
-          , req.body.device_id
-          , req.body.device_name);
+        var end = function() {
+          return workflow.emit('find access token'
+            , req.body.client_id
+            , req.body.client_secret
+            , req.body.device_id
+            , req.body.device_name);
+        }
+
+        if (!user.roles.account.picture) {
+          workflow.emit('downloadAndSaveImage.'+ req.body.auth_type, function(image) {
+              user.roles.account.picture = image.min;
+              user.roles.account.save(function(err, res) {
+                if (err) { return workflow.emit('exception', err); }
+                return end();
+              });
+          });
+        } else
+            return end();
       }
-      workflow.emit('createUser');
+      return workflow.emit('createUser');
+    });
+  });
+
+  workflow.on('downloadAndSaveImage.facebook', function(callback) {
+    var id = workflow.outcome.user ? workflow.outcome.user.facebook.id : workflow.social.id;
+    var filepath = './uploads/' + req.body.auth_type + '_' + id;
+    var writestream = fs.createWriteStream(filepath);
+    request('http://graph.facebook.com/'+ id + '/picture?width=9999').pipe(writestream);
+    writestream.on('close', function() {
+      workflow.emit('processImageUpload', filepath, callback);
+    });
+  });
+
+  workflow.on('downloadAndSaveImage.google', function(callback) {
+    var id = workflow.outcome.user ? workflow.outcome.user.google.id : workflow.social.id;
+    var filepath = './uploads/' + req.body.auth_type + '_' + id;
+    var writestream = fs.createWriteStream(filepath);
+    request(workflow.social.picture).pipe(writestream);
+    writestream.on('close', function() {
+      workflow.emit('processImageUpload', filepath, callback);
+    });
+  });
+
+  workflow.on('processImageUpload', function(filepath, callback) {
+    magic.detectFile(filepath, function(err, mimetype) {
+      if (err)
+        return next(err);
+      var new_filepath = filepath + '.' + mimetype.match(/^[^/]*\/(.*)/)[1];
+      fs.rename(filepath, new_filepath , function(err) {
+        if (err)
+          return next(err);
+        var form = new formData();
+        form.append('type', 'avatars');
+        form.append('name', new_filepath.slice(10))
+        form.append('file', fs.createReadStream(new_filepath));
+        var the_request = httprequest.request({
+            method: 'POST'
+          , host: 'localhost'
+          , port: 8080
+          , encoding: null
+          , path: '/media/upload'
+          , headers: form.getHeaders()
+        });
+
+        the_request.on('error', function(err) {
+          workflow.emit('exception', err);
+        });
+
+        var buffer = new Buffer(0);
+        the_request.on('response', function(response) {
+          response.on('data', function(chunk) {
+            buffer = Buffer.concat([buffer, chunk]);
+          });
+          response.on('error', function(err) {
+            return callback({success: false, orig: null, min: null });
+          });
+          response.on('end', function() {
+            fs.unlink(new_filepath);
+            return callback(JSON.parse(buffer.toString()));
+          });
+        });
+
+        form.pipe(the_request);
+      });
     });
   });
 
@@ -147,11 +230,17 @@ exports = module.exports = function(req, res) {
       req.app.db.models.User.findByIdAndUpdate(workflow.outcome.user._id, { $set: { roles: { account: account._id } } }).exec(function(err, count, res) {
         if (err)
           return workflow.emit('exception', err);
-        return workflow.emit('create access token'
-          , req.body.client_id
-          , req.body.client_secret
-          , req.body.device_id
-          , req.body.device_name);
+        workflow.emit('downloadAndSaveImage.'+req.body.auth_type, function(image) {
+          workflow.outcome.account.picture = image.min;
+          workflow.outcome.account.save(function(err, res) {
+            if (err) { return workflow.emit('exception', err); }
+            return workflow.emit('create access token'
+              , req.body.client_id
+              , req.body.client_secret
+              , req.body.device_id
+              , req.body.device_name);
+          });
+        });
       });
     });
   });

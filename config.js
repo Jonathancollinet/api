@@ -6,6 +6,7 @@ exports.name = 'Adok - API';
 exports.host = '127.0.0.1';
 exports.port = process.env.API_PORT || 8080;
 exports.url = 'http://localhost:8080/';
+exports.imageUrl = exports.url + 'media';
 exports.ssl = {
   enabled: false,
   key: fs.readFileSync('ssl/certificate.key', 'utf8'),
@@ -53,3 +54,4 @@ exports.oauth = {
 };
 
 exports.cookieSecret = 'asd1$-lk5D-^kl*6-/asd&#';
+exports.gzip = true;

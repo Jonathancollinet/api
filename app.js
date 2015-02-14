@@ -24,6 +24,7 @@ var routes = require('./routes.js');
 var app = express();
 exports.app = app;
 
+app.express = express;
 // linking configuration file
 app.Config = config;
 
@@ -67,8 +68,9 @@ oauth2.setApp(app);
 require('./passport')(app, passport);
 
 /* Mount /media router */
-app.mediaserver = mediaserver;
-app.use('/media', mediaserver);
+app.mediaserver = mediaserver(app);
+app.mediaserver.initialize();
+app.use('/media', app.mediaserver.Router);
 
 /* GET home page. */
 app.get('/', require('./views/homepage').init);

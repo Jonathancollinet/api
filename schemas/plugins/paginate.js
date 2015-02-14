@@ -47,8 +47,10 @@ module.exports = exports = function pagedFindPlugin (schema, filters) {
 
           workflow.on('parse object', function(items, i) {
             var k = 0;
-            while (k < skeys.length) {
-              if (items[i].acc.roles && items[i].acc.roles.account[skeys[k]])
+            while (k < skeys.length && items[i].acc.roles) {
+              if (typeof items[i].acc.roles.account[skeys[k]] == 'function') {
+                items[i].acc[skeys[k].slice(3)] = items[i].acc.roles.account[skeys[k]]();
+              } else if (items[i].acc.roles.account[skeys[k]])
                 items[i].acc[skeys[k]] = items[i].acc.roles.account[skeys[k]];
               ++k;
             }
