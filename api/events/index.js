@@ -4,6 +4,16 @@ exports.listAll = function(req, res) {
 		, sort: {}
 		, filters: {}
 		, keys: '_id type category date date2 acc timeCreated numOfPtc desc title'
+		, populate: [{
+				path: 'acc',
+				keys: '_id email roles.account',
+
+			}]
+		, subPopulate: {
+				path: 'acc.roles.account',
+				keys: 'picture name',
+				model: req.app.db.models.Account
+			}
 	};
 	if (req.query.sort_by) {
 		options.sort[req.query.sort_by] = req.query.sort_order ? parseInt(req.query.sort_order) : -1;
@@ -17,7 +27,6 @@ exports.listAll = function(req, res) {
 			options.filters = { date: { $gt: req.query.last_item } };
 		}
 	}
-	console.log(options);
 	req.app.db.models.Event.paginate(options, function(err, rows) {
 		if (err)
 			return next(err);
