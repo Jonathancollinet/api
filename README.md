@@ -144,7 +144,15 @@ DELETE -> supprime
             "category": 1,
             "date": "2015-06-12T22:09:35.395Z",
             "date2": "2015-06-12T22:09:35.395Z",
-            "acc": "54d9dd4d4088b7702b73dd95",
+            "acc": {
+                "_id": "54d9ddf24088b7702b73dd9a",
+                "email": "adresse_mail",
+                "name": {
+                    "first": "prenom",
+                    "last": "nom",
+                    "full": "prenom nom"
+                }
+            },
             "timeCreated": "2015-02-13T23:09:35.623Z",
             "numOfPtc": 0,
             "desc": "",
@@ -152,6 +160,7 @@ DELETE -> supprime
         },
         ...
     ],
+    "last_item":
     "has_more": true
 }
 ```
