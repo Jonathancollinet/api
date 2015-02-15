@@ -68,9 +68,9 @@ oauth2.setApp(app);
 require('./passport')(app, passport);
 
 /* Mount /media router */
-app.mediaserver = mediaserver(app);
-app.mediaserver.initialize();
-app.use('/media', app.mediaserver.Router);
+app.ms = mediaserver(app);
+app.ms.initialize();
+app.use('/media', require('./mediaserver')); //app.mediaserver.Router
 
 /* GET home page. */
 app.get('/', require('./views/homepage').init);
