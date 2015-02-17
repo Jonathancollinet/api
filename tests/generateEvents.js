@@ -9,7 +9,6 @@ var mongoose = require('mongoose')
 app.Config = config;
 app.utils = require('../modules')
 
-console.log(app.get);
 describe('test', function(){
   var user;
   before(function(done) {
@@ -28,7 +27,7 @@ describe('test', function(){
       assert(app.db.models.Account);
     });
     it('should find an user', function() {
-      app.db.models.User.findOne().skip(1).exec(function(err, res) {
+      app.db.models.User.findOne().exec(function(err, res) {
         if (err) { throw new Error(err); }
         user = res;
         assert(res);
