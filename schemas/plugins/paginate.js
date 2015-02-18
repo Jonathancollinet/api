@@ -1,8 +1,9 @@
 'use strict';
 
+var mediaserverUrl = require('../../config').mediaserverUrl;
+
 module.exports = exports = function pagedFindPlugin (schema, filters) {
   schema.statics.paginate = function(options, cb) {
-    var mediaserverUrl = require('../../config').imageUrl;
     var thisSchema = this;
     if (!options)
       options = {};
