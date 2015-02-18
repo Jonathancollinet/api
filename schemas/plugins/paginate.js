@@ -2,6 +2,7 @@
 
 module.exports = exports = function pagedFindPlugin (schema, filters) {
   schema.statics.paginate = function(options, cb) {
+    var mediaserverUrl = require('../../config').imageUrl;
     var thisSchema = this;
     if (!options)
       options = {};
@@ -53,6 +54,9 @@ module.exports = exports = function pagedFindPlugin (schema, filters) {
               } else if (items[i].acc.roles.account[skeys[k]])
                 items[i].acc[skeys[k]] = items[i].acc.roles.account[skeys[k]];
               ++k;
+            }
+            if (items[i].acc.roles && items[i].acc.picture) {
+              items[i].acc.picture = mediaserverUrl + items[i].acc.picture;
             }
             if (i == (items.length - 1)) {
               return workflow.emit('parse end', items);
