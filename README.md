@@ -1,6 +1,6 @@
 # Adok API
 
-## Image-server - Prérequis
+## Image-server - Prérequis-
 
 Premièrement vous devez vérifier si imagemagick est installé sur votre OS :
 ```sh
