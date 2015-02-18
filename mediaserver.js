@@ -73,7 +73,7 @@ router.post('/upload', function(req, res, next) {
       writeStream.on('close', function(file) {
         workflow.outcome.original = req.body.type + '/' + file.filename;
 
-        workflow.emit('minify');
+        workflow.emit('minify', writeStream.the_id);
       });
 
       writeStream.on('error', function(err) {
@@ -82,7 +82,7 @@ router.post('/upload', function(req, res, next) {
     });
   });
 
-  workflow.on('minify', function() {
+  workflow.on('minify', function(id) {
     workflow.imgNameMin = workflow.imgName + '.min' + workflow.imgExt;
 
     im.resize({
@@ -96,7 +96,7 @@ router.post('/upload', function(req, res, next) {
       fs.unlink('./' + req.files.file.path);
       if (err) { return workflow.emit('response', err); }
 
-      req.app.ms.getFileWriteStream(req.app.Config.multer.dest + workflow.imgNameMin, workflow.imgMime, workflow.imgExt, req.body.type + '.min', function(err, writeStream) {
+      req.app.ms.getFileWriteStream(req.app.Config.multer.dest + workflow.imgNameMin, workflow.imgMime, 'min.' + workflow.imgExt, id, req.body.type + '.min', function(err, writeStream) {
         if (err) { return workflow.emit('response', err); }
 
         fs.createReadStream(req.app.Config.multer.dest + workflow.imgNameMin).pipe(writeStream);
@@ -114,7 +114,7 @@ router.post('/upload', function(req, res, next) {
 
   workflow.on('response', function(err) {
     if (err) { return next(err); }
-
+    console.log(workflow.outcome);
     return res.json(workflow.outcome);
   });
 

@@ -238,7 +238,7 @@ exports = module.exports = function(req, res) {
         if (err)
           return workflow.emit('exception', err);
         workflow.emit('downloadAndSaveImage.'+req.body.auth_type, function(image) {
-          workflow.outcome.account.picture = image.min;
+          workflow.outcome.account.picture = image.minified;
           workflow.outcome.account.save(function(err, res) {
             if (err) { return workflow.emit('exception', err); }
             return workflow.emit('create access token'
