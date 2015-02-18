@@ -71,7 +71,7 @@ router.post('/upload', function(req, res, next) {
       fs.createReadStream('./'+req.files.file.path).pipe(writeStream);
 
       writeStream.on('close', function(file) {
-        workflow.outcome.original = req.app.Config.imageUrl + req.body.type + '/' + file.filename;
+        workflow.outcome.original = req.body.type + '/' + file.filename;
 
         workflow.emit('minify');
       });
@@ -104,7 +104,7 @@ router.post('/upload', function(req, res, next) {
         writeStream.on('close', function(file) {
           fs.unlink(req.app.Config.multer.dest + workflow.imgNameMin);
 
-          workflow.outcome.minified = req.app.Config.imageUrl + req.body.type + '/' + file.filename;
+          workflow.outcome.minified = req.body.type + '/' + file.filename;
 
           return workflow.emit('response');
         });
