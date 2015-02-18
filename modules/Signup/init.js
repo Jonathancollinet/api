@@ -52,9 +52,13 @@ exports = module.exports = function(req, res) {
             body = body;
           }
           if (!error && response.statusCode == 200) {
+            if (!body.email)
+              return workflow.emit('exception', 'Un compte nécessite une adresse email');
             if (req.body.user_id && req.body.user_id != body.id)
               return workflow.emit('exception', 'Supplied user and provider\'s user differ');
             dataflow.social = body;
+            if (!body.email)
+              return workflow.emit('exception', 'Merci d\'authoriser l\'accès à votre adresse mail.');
             workflow.emit('checkDuplicateEmail');
           } else
             return workflow.emit('exception', JSON.stringify(error || response));
@@ -85,6 +89,8 @@ exports = module.exports = function(req, res) {
               break ;
             }
           }
+          if (!body.email)
+            return workflow.emit('exception', 'Merci d\'authoriser l\'accès à votre adresse mail.');
           workflow.emit('checkDuplicateEmail');
         } else
           return workflow.emit('exception', JSON.stringify(error || response));
@@ -112,10 +118,11 @@ exports = module.exports = function(req, res) {
         }
 
         if (!user.roles.account.picture) {
-          workflow.emit('downloadAndSaveImage.'+ req.body.auth_type, function(image) {
-              user.roles.account.picture = image.min;
+          return workflow.emit('downloadAndSaveImage.'+ req.body.auth_type, function(image) {
+              user.roles.account.picture = image.minified;
               user.roles.account.save(function(err, res) {
                 if (err) { return workflow.emit('exception', err); }
+                console.log('saved');
                 return end();
               });
           });
@@ -156,7 +163,6 @@ exports = module.exports = function(req, res) {
           return next(err);
         var form = new formData();
         form.append('type', 'avatars');
-        form.append('name', new_filepath.slice(10))
         form.append('file', fs.createReadStream(new_filepath));
         var the_request = httprequest.request({
             method: 'POST'
@@ -177,7 +183,8 @@ exports = module.exports = function(req, res) {
             buffer = Buffer.concat([buffer, chunk]);
           });
           response.on('error', function(err) {
-            return callback({success: false, orig: null, min: null });
+            fs.unlink(new_filepath);
+            return callback({success: false, original: null, minified: null });
           });
           response.on('end', function() {
             fs.unlink(new_filepath);
@@ -259,12 +266,6 @@ exports = module.exports = function(req, res) {
         return workflow.emit('delete token', token);
       return workflow.emit('send Adok key', token);
     });
-    // var access_token = req.app.utils.Crypto.encrypt(req.app
-    //   , 'client=' + client
-    //     + ':secret=' + secret
-    //     + ':user=' + user
-    //     + ':deviceID=' + device_id
-    //     + ':deviceName=' + new Buffer(device_name).toString('base64'));
   });
 
   workflow.on('create access token', function(client, secret, device_id, device_name) {
