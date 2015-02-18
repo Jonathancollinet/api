@@ -70,11 +70,16 @@ exports.exists = function(req, res) {
 }
 
 exports.create = function(req, res) {
+	var object = req.body;
+	object.acc = req.user._id;
+	object.accType = "account";
+
 	req.app.db.models.Event.create(req.body, function(err, row) {
-		if (!err)
-			res.json({data: row});
-		else
-			res.json({data: err});
+		if (err) {
+			return next(err);
+		}
+		row.__v = undefined;
+		res.json(row);
 	});
 }
 

@@ -110,7 +110,7 @@ module.exports = function(options, issue) {
 
     function issued(err, accessToken, refreshToken, params) {
       if (err) { return next(err); }
-      console.log(accessToken);
+
       if (!accessToken) { return next(new TokenError('Invalid resource owner credentials', 'invalid_grant')); }
       if (refreshToken && typeof refreshToken == 'object') {
         params = refreshToken;

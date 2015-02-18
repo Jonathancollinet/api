@@ -3,7 +3,7 @@ var moment = require('moment');
 
 exports = module.exports = function(app, mongoose) {
   var EventSchema = new mongoose.Schema({
-    title: { type: String, trim: true },
+    title: { type: String, trim: true, required: true },
     desc: { type: String, default: '' },
     hashtag: { type: String },
     place: { type: String },
@@ -18,5 +18,6 @@ exports = module.exports = function(app, mongoose) {
   }, {safe: true});
   EventSchema.plugin(require('./plugins/paginate'));
   EventSchema.set('autoIndex', (app.get('env') === 'development'));
+  EventSchema.index({ _id: 1 });
   app.db.model('Event', EventSchema);
 };

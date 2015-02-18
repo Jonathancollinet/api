@@ -129,35 +129,30 @@ DELETE -> supprime
 - get('/events');  utilisé pour récupérer la liste des évènements
   - Liste des paramètres disponibles
     - `limit` permet de changer le nombre d'objets renvoyés (Défaut: 20)
-    - `sort_by` permet de changer l'attribut servant à trier (Défaut: date)
+    - `sort_by` permet de changer l'attribut servant à trier (Défaut: end)
     - `sort_order` permet de changer l'ordre du tri (Défaut: -1)
       - valeurs possibles : 1/-1(Ascendant/Descendant)
-    - `last_item` Permet de récupérer la suite des évènements. Si fourni, doit contenir la `date` du dernier élément contenu dans `items`
+    - `last_item` Permet de récupérer la suite des évènements. Si fourni, doit contenir la valeur `has_more`.
     - Exemple : /events?last_item=2015-06-12T22:09:35.395Z
-  - Renvoit un objet formé comme suit :
+  - Renvoit un objet formé comme suit (exemple avec limit=1):
 ```json
 {
-    "items": [
-      {
-            "_id": "54de842f01783d940cd39335",
-            "type": 0,
-            "category": 1,
-            "date": "2015-06-12T22:09:35.395Z",
-            "date2": "2015-06-12T22:09:35.395Z",
-            "acc": {
-                "_id": "54d9ddf24088b7702b73dd9a",
-                "picture": "http://localhost:8080/media/avatars/54e4656f6ec7262420f69d02.min.jpeg",
-                "name": "Lilian Cahuzac"
-            },
-            "timeCreated": "2015-02-13T23:09:35.623Z",
-            "numOfPtc": 0,
-            "desc": "",
-            "title": "Northwind Traders"
-        },
-        ...
-    ],
-    "last_item":
-    "has_more": true
+  "items": [
+    {
+      "_id": "54e4ddbf20602d5428fd41e2",
+      "title": "Margie's Travel",
+      "acc": {
+        "_id": "54e465146ec7262420f69cfa",
+        "picture": "http://localhost:8080/media/avatars/54e4656f6ec7262420f69d02.min.jpeg",
+        "name": "Lilian Cahuzac"
+      },
+      "end": "2015-02-20T23:45:19.045Z",
+      "start": "2015-02-18T18:45:19.045Z",
+      "desc": ""
+    }
+  ],
+  "has_more": true,
+  "last_item": "54e4ddbf20602d5428fd41e2"
 }
 ```
   - `has_more` vaut true si il reste des évènements à récupérer (utilisez alors `last_item`)
@@ -166,6 +161,13 @@ DELETE -> supprime
 - get('/events/:id');
 - get('/events/:id/exists');
 - post('/events'); (créer un défi)
+  - Fournissez dans le body :
+    - `title` le titre du défi
+    - `desc` la description du défi
+    - `hashtag` les tags de recherche
+    - `place` l'adresse de l'evenement
+    - `latLng[]` la latitude
+    - `latLng[]` la longitude
 - put('/events/:id'); (met a jour ce défi)
 - delete('/events/:id'); (supprime ce défi)
 
@@ -176,35 +178,25 @@ DELETE -> supprime
 - put('/eventregister/:id');
 - delete('/eventregister/:id');
 
-schéma pour les events register->
-```json
-{
-    "event": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Event" },
-    "account": [{
-      "_id": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Account" },
-      "conf": { "type": "Number", "default": "0" }
-    }]
-}
-```
+### notifications (à remplacer)
+- get('/notifications');
+- get('/notifications/findOne');
+- get('/notifications/count');
+- get('/notifications/:id');
+- get('/notifications/:id/exists');
+- post('/notifications');
+- put('/notifications/:id');
+- delete('/notifications/:id');
 
 ### badges (les badges)
 - get('/badges');
 - get('/badges/findOne');
-- get('/badges/count');
+- get('/badges/count');---
 - get('/badges/:id');
 - get('/badges/:id/exists');
 - post('/badges');
 - put('/badges/:id');
 - delete('/badges/:id');
-
-schéma pour un badge->
-```json
-{
-	"name":  {"type": "String"},
-	"title": {"type": "String"},
-	"desc": {"type": "String"},
-}
-```
 
 ### validations (validation des users par rapport a un défis) incomplet
 - get('/validations');
