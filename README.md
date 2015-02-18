@@ -176,25 +176,35 @@ DELETE -> supprime
 - put('/eventregister/:id');
 - delete('/eventregister/:id');
 
-### notifications (à remplacer)
-- get('/notifications');
-- get('/notifications/findOne');
-- get('/notifications/count');
-- get('/notifications/:id');
-- get('/notifications/:id/exists');
-- post('/notifications');
-- put('/notifications/:id');
-- delete('/notifications/:id');
+schéma pour les events register->
+```json
+{
+    "event": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Event" },
+    "account": [{
+      "_id": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Account" },
+      "conf": { "type": "Number", "default": "0" }
+    }]
+}
+```
 
 ### badges (les badges)
 - get('/badges');
 - get('/badges/findOne');
-- get('/badges/count');---
+- get('/badges/count');
 - get('/badges/:id');
 - get('/badges/:id/exists');
 - post('/badges');
 - put('/badges/:id');
 - delete('/badges/:id');
+
+schéma pour un badge->
+```json
+{
+	"name":  {"type": "String"},
+	"title": {"type": "String"},
+	"desc": {"type": "String"},
+}
+```
 
 ### validations (validation des users par rapport a un défis) incomplet
 - get('/validations');
