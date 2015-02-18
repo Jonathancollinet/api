@@ -183,10 +183,10 @@ DELETE -> supprime
 schéma pour les events register->
 ```json
 {
-    event: { type: mongoose.Schema.Types.ObjectId, reference vers l'objet: 'Event' },
-    account: [{
-      _id: { type: mongoose.Schema.Types.ObjectId, reference vers l'objet: 'Account' },
-      conf: { type: Number, default: 0 }
+    "event": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Event" },
+    "account": [{
+      "_id": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Account" },
+      "conf": { "type": "Number", "default": "0" }
     }]
 }
 ```
@@ -204,9 +204,9 @@ schéma pour les events register->
 schéma pour un badge->
 ```json
 {
-	name:  {type: String},
-	title: {type: String},
-	desc: {type: String},
+	"name":  {"type": "String"},
+	"title": {"type": "String"},
+	"desc": {"type": "String"},
 }
 ```
 
