@@ -4,6 +4,7 @@ var mongoose = require('mongoose')
   , config = require('../config')
   , Identity = require('fake-identity')
   , assert = require('assert')
+  , usleep = require('sleep').usleep
   , app = express();
 
 app.Config = config;
@@ -34,17 +35,12 @@ describe('test', function(){
       })
     })
     it('should write to DB', function() {
-      var newUsers = Identity.generate(10);
+      var newUsers = Identity.generate(500);
       var allToSave = [];
       for (var i in newUsers) {
         var self = newUsers[i];
-        var date = moment().add((Math.round((Math.random() * 1000) % 90) + 1), 'days');
         var toSave = {
-            type: Math.round((Math.random() * 10) % 2)
-          , category: Math.round((Math.random() * 10) % 3)
-          , title: self.company
-          , date: date.toDate()
-          , date2: date.add((Math.round((Math.random() * 1000) % 30) + 1), 'days').toDate()
+            title: self.company
           , place: self.street + ', ' + self.zipCode + ' ' + self.city + ' ' + self.state
           , latLng: [ ((Math.random() * 1000) % 80).toFixed(4), ((Math.random() * 1000) % 80).toFixed(4)]
           , photos: ''

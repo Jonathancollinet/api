@@ -1,19 +1,16 @@
 'use strict';
+var moment = require('moment');
 
 exports = module.exports = function(app, mongoose) {
   var EventSchema = new mongoose.Schema({
-    type: { type: Number, min: 0, max: 2 },
-    category: { type: Number },
-    title: { type: String, trim: true, default: '' },
-    date: { type: Date },
-    date2: { type: Date },
+    title: { type: String, trim: true },
     desc: { type: String, default: '' },
-    numOfPtc: { type: Number, default: 0 },
     hashtag: { type: String },
     place: { type: String },
     latLng: [ Number ],
     photos: { type: String, default: '' },
-    timeCreated: { type: Date, default: Date.now },
+    start: { type: Date, default: Date.now },
+    end: { type: Date, default: moment().hours(72).toDate() },
     acc: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     accType: { type: String },
     toNotif: { type: Array },

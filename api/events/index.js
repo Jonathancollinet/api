@@ -3,7 +3,7 @@ exports.listAll = function(req, res) {
 			limit: req.query.limit || 20
 		, sort: {}
 		, filters: {}
-		, keys: '_id date date2 acc timeCreated numOfPtc desc title'
+		, keys: '_id acc start end numOfPtc desc title'
 		, populate: [{
 				path: 'acc',
 				keys: 'roles.account',
@@ -17,13 +17,13 @@ exports.listAll = function(req, res) {
 	if (req.query.sort_by) {
 		options.sort[req.query.sort_by] = req.query.sort_order ? parseInt(req.query.sort_order) : -1;
 	} else {
-		options.sort = { date: -1 };
+		options.sort = { _id: -1 };
 	}
 	if (req.query.last_item) {
-		if (options.sort.date == -1) {
-			options.filters = { date: { $lt: req.query.last_item } };
+		if (options.sort._id == -1) {
+			options.filters = { _id: { $lt: req.query.last_item } };
 		} else {
-			options.filters = { date: { $gt: req.query.last_item } };
+			options.filters = { _id: { $gt: req.query.last_item } };
 		}
 	}
 	req.app.db.models.Event.paginate(options, function(err, rows) {

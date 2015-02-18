@@ -146,12 +146,8 @@ DELETE -> supprime
             "date2": "2015-06-12T22:09:35.395Z",
             "acc": {
                 "_id": "54d9ddf24088b7702b73dd9a",
-                "email": "adresse_mail",
-                "name": {
-                    "first": "prenom",
-                    "last": "nom",
-                    "full": "prenom nom"
-                }
+                "picture": "http://localhost:8080/media/avatars/54e4656f6ec7262420f69d02.min.jpeg",
+                "name": "Lilian Cahuzac"
             },
             "timeCreated": "2015-02-13T23:09:35.623Z",
             "numOfPtc": 0,
