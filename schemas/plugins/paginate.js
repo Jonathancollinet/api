@@ -39,7 +39,7 @@ module.exports = exports = function pagedFindPlugin (schema, filters) {
       }
       if (results.length < options.limit)
         output.has_more = false;
-      if (options.subPopulate) {
+      if (options.subPopulate && results.length) {
         options.subPopulate.model.populate(results, options.subPopulate.path, function(err, popResults) {
           if (err)
             return cb(err, null);
@@ -75,7 +75,8 @@ module.exports = exports = function pagedFindPlugin (schema, filters) {
         });
       } else {
         output.items = results;
-        output.last_item = results[results.length - 1].date;
+        if (results.length)
+          output.last_item = results[results.length - 1].date;
         cb(null, output);
       }
     });
