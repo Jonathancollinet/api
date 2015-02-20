@@ -5,14 +5,13 @@ exports = module.exports = function(app, mongoose) {
   var EventSchema = new mongoose.Schema({
     title: { type: String, trim: true, required: true },
     desc: { type: String, default: '' },
-    hashtag: { type: String },
+    hashtag: { type: String, required: true },
     place: { type: String },
     latLng: [ Number ],
-    photos: { type: String, default: '' },
     start: { type: Date, default: Date.now },
     end: { type: Date, default: moment().hours(72).toDate() },
-    acc: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    accType: { type: String },
+    acc: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    accType: { type: String, required: true },
     toNotif: { type: Array },
     datas: { type: Object }
   }, {safe: true});

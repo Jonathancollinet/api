@@ -41,9 +41,7 @@ describe('test', function(){
         var self = newUsers[i];
         var toSave = {
             title: self.company
-          , place: self.street + ', ' + self.zipCode + ' ' + self.city + ' ' + self.state
-          , latLng: [ ((Math.random() * 1000) % 80).toFixed(4), ((Math.random() * 1000) % 80).toFixed(4)]
-          , photos: ''
+          , hashtag: self.company.split(' ')
           , acc: user._id
           , accType: 'account'
         };

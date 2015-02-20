@@ -5,8 +5,8 @@ var fs = require('fs');
 exports.name = 'Adok - API';
 exports.host = '127.0.0.1';
 exports.port = process.env.API_PORT || 8080;
-exports.url = 'http://localhost:8080/';
-exports.mediaserverUrl = 'http://localhost:8080/media/';
+exports.url = 'http://' + exports.host + ':' + exports.port + '/';
+exports.mediaserverUrl = 'http://127.0.0.1:8080/media/';
 exports.ssl = {
   enabled: false,
   key: fs.readFileSync('ssl/certificate.key', 'utf8'),

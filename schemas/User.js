@@ -18,6 +18,44 @@ exports = module.exports = function(app, mongoose) {
     search: [String]
   });
 
+  userSchema.pre('remove', function(next) {
+    var that = this;
+    app.db.models.AdokAccessToken.remove({ user: that._id }).exec(function(e, r) {
+      if (e) { return next(e); }
+      app.db.models.AccessToken.remove({ user: that._id }).exec(function(e, r) {
+        if (e) { return next(e); }
+        app.db.models.RefreshToken.remove({ user: that._id }).exec(function(e, r) {
+          if (e) { return next(e); }
+          app.db.models.Admin.remove({ _id: that.roles.admin }).exec(function(e, r) {
+            if (e) { return next(e); }
+            app.db.models.Account.remove({ _id: that.roles.account }).exec(function(e, r) {
+              if (e) { return next(e); }
+              app.db.models.Event.remove({ acc: that._id }).exec(function(e, r) {
+                if (e) { return next(e); }
+                app.db.models.Notification.remove({ $or: [{ from: { account: that.roles.account } }, { to: that.roles.account }] }).exec(function(e, r) {
+                  if (e) { return next(e); }
+                  app.ms.events.remove({ metadata: { user: that._id } }, function(e, r) {
+                    if (e) { return next(e); }
+                    app.ms.events_min.remove({ metadata: { user: that._id } }, function(e, r) {
+                      if (e) { return next(e); }
+                      app.ms.avatars.remove({ metadata: { user: that._id } }, function(e, r) {
+                        if (e) { return next(e); }
+                        app.ms.avatars_min.remove({ metadata: { user: that._id } }, function(e, r) {
+                          if (e) { return next(e); }
+                          return next();
+                        });
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
   userSchema.methods.canPlayRoleOf = function(role) {
     if (role === "admin" && this.roles.admin) {
       return true;
@@ -48,7 +86,6 @@ exports = module.exports = function(app, mongoose) {
   };
 
   userSchema.plugin(require('./plugins/pagedFind'));
-  // userSchema.index({ username: 1 }, { unique: true });
   userSchema.index({ email: 1 }, { unique: true });
   userSchema.index({ timeCreated: 1 });
   userSchema.index({ resetPasswordToken: 1 });

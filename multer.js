@@ -7,10 +7,10 @@ var multer = require('multer')
 
 var onFileUploadStart = function(file) {
   /*
-   * Check if file type is jpg, jpeg or png
+   * Check if file type is jpg, jpeg, png or gif
    */
 
-  return /^.*\.(jpg|jpeg|png)/.test(file.name);
+  return /^.*\.(jpg|jpeg|png|gif)/i.test(file.name);
 };
 
 var onError = function(error, next) {

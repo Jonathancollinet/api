@@ -42,6 +42,41 @@ exports.findOne = function(req, res) {
 	});
 }
 
+exports.gallery = function(req, res, next) {
+	var workflow = new (require('events').EventEmitter)();
+
+	req.app.ms.Grid.find({ 'metadata.event': req.app.ms.Grid.tryParseObjectId(req.params.id), root: "events" }, function(err, found) {
+		if (err) { return next(err); }
+		var filesArray = [];
+		workflow.on('end', function() {
+			return res.json(filesArray);
+		});
+		workflow.on('parse object',function(files, i) {
+			req.app.db.models.User.findOne({ _id: files[i].metadata.user.toString() }).populate('roles.account').exec(function(err, user) {
+				if (err) { return next(err); }
+				var explod = files[i].filename.match(/^([^.]*)\.(.*)/);
+				var toPush = {
+						acc: {
+								id: user._id
+							, name: user.roles.account.name.full
+							, picture: user.roles.account.picture
+						}
+					, original: req.app.Config.mediaserverUrl + 'avatars/' + explod[0]
+					, minified: req.app.Config.mediaserverUrl + 'avatars/' + explod[1] + '.min.' + explod[2]
+				};
+				filesArray.push(toPush);
+				if (i === (files.length - 1))
+					return workflow.emit('end');
+				workflow.emit('parse object', files, ++i);
+			});
+		});
+		if (found && found.length)
+			workflow.emit('parse object', found, 0);
+		else
+			workflow.emit('end');
+	});
+}
+
 exports.count = function(req, res) {
 	req.app.db.models.Event.find().count().exec(function(err, row) {
 		if (!err)

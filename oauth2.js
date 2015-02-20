@@ -20,8 +20,6 @@ server.exchange(utils.oauth2.adok(function(client, accessToken, scope, done) {
   workflow.on('Find Access Token', function() {
     app.db.models.AdokAccessToken.findOne({ token: accessToken }).exec(function(err, token) {
       if (err || !token) { return workflow.emit('response', err || "Invalid Token"); }
-      console.log(Math.round((Date.now()-token.created)/1000));
-      console.log(config.token.adok.expires_in);
       if (Math.round((Date.now()-token.created)/1000) > config.token.adok.expires_in)
         return workflow.emit('Detele Access Token', token);
       return workflow.emit('Find Bearer Token', token);

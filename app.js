@@ -36,13 +36,23 @@ exports.utils = app.utils;
 app.db = mongoose.createConnection(config.mongodb.uri);
 app.db.on('error', function(err) { throw new Error(err); }); //console.error.bind(console, 'mongoose connection error: '));
 app.db.once('open', function() {
-  console.log("Connected to mongodb " + config.mongodb.uri);
+  app.ms = mediaserver(app);
+  app.ms.initialize();
+  app.ms.db.once("open", function() {
+    app.ms.events = app.ms.Grid.collection('events');
+    app.ms.events_min = app.ms.Grid.collection('events.min');
+    app.ms.avatars = app.ms.Grid.collection('avatars');
+    app.ms.avatars_min = app.ms.Grid.collection('avatars.min');
+
+    require('./models')(app, mongoose)
+    app.db.models.Client.InstallAdokApplications(app);
+    app.db.models.RateLimit.startTTLReaper();
+    console.log("Connected to mongodb " + config.mongodb.uri);
+  });
+
 });
 
 // loading Database's models
-require('./models')(app, mongoose)
-app.db.models.Client.InstallAdokApplications(app);
-app.db.models.RateLimit.startTTLReaper();
 // console.log(app.db.models.RateLimit);
 
 // view engine setup
@@ -68,9 +78,7 @@ oauth2.setApp(app);
 require('./passport')(app, passport);
 
 /* Mount /media router */
-app.ms = mediaserver(app);
-app.ms.initialize();
-app.use('/media', require('./mediaserver')); //app.mediaserver.Router
+app.use('/media', require('./mediaserver')(app, passport)); //app.mediaserver.Router
 
 /* GET home page. */
 app.get('/', require('./views/homepage').init);

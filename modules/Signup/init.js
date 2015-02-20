@@ -9,7 +9,7 @@ var request = require('request')
       'google': 'https://www.googleapis.com/plus/v1/people/me'
   };
 
-exports = module.exports = function(req, res) {
+exports = module.exports = function(req, res, next) {
   var workflow = require('workflow')(req, res)
     , dataflow = {};
 
@@ -77,7 +77,6 @@ exports = module.exports = function(req, res) {
           } catch (err) {
             body = body;
           }
-          // console.log(body);
           if (req.body.user_id && req.body.user_id != body.id)
             return workflow.emit('exception', 'Supplied user and provider\'s user differ');
           if (!body.emails)
@@ -118,11 +117,11 @@ exports = module.exports = function(req, res) {
         }
 
         if (!user.roles.account.picture) {
+          req.user = user;
           return workflow.emit('downloadAndSaveImage.'+ req.body.auth_type, function(image) {
               user.roles.account.picture = image.minified;
               user.roles.account.save(function(err, res) {
                 if (err) { return workflow.emit('exception', err); }
-                console.log('saved');
                 return end();
               });
           });
@@ -157,42 +156,50 @@ exports = module.exports = function(req, res) {
     magic.detectFile(filepath, function(err, mimetype) {
       if (err)
         return next(err);
+
       var new_filepath = filepath + '.' + mimetype.match(/^[^/]*\/(.*)/)[1];
       fs.rename(filepath, new_filepath , function(err) {
         if (err)
           return next(err);
-        var form = new formData();
-        form.append('type', 'avatars');
-        form.append('file', fs.createReadStream(new_filepath));
-        var the_request = httprequest.request({
-            method: 'POST'
-          , host: 'localhost'
-          , port: 8080
-          , encoding: null
-          , path: '/media/upload'
-          , headers: form.getHeaders()
+        var options = {
+            root: 'avatars'
+          , filepath: new_filepath
+        };
+        req.app.utils.Upload.OriginalAndMinified(req, res, next, options, function(avatar) {
+          return callback(avatar);
         });
-
-        the_request.on('error', function(err) {
-          workflow.emit('exception', err);
-        });
-
-        var buffer = new Buffer(0);
-        the_request.on('response', function(response) {
-          response.on('data', function(chunk) {
-            buffer = Buffer.concat([buffer, chunk]);
-          });
-          response.on('error', function(err) {
-            fs.unlink(new_filepath);
-            return callback({success: false, original: null, minified: null });
-          });
-          response.on('end', function() {
-            fs.unlink(new_filepath);
-            return callback(JSON.parse(buffer.toString()));
-          });
-        });
-
-        form.pipe(the_request);
+        // var form = new formData();
+        // form.append('type', 'avatars');
+        // form.append('file', fs.createReadStream(new_filepath));
+        // var the_request = httprequest.request({
+        //     method: 'POST'
+        //   , host: 'localhost'
+        //   , port: 8080
+        //   , encoding: null
+        //   , path: '/media/upload'
+        //   , headers: form.getHeaders()
+        // });
+        //
+        // the_request.on('error', function(err) {
+        //   workflow.emit('exception', err);
+        // });
+        //
+        // var buffer = new Buffer(0);
+        // the_request.on('response', function(response) {
+        //   response.on('data', function(chunk) {
+        //     buffer = Buffer.concat([buffer, chunk]);
+        //   });
+        //   response.on('error', function(err) {
+        //     fs.unlink(new_filepath);
+        //     return callback({success: false, original: null, minified: null });
+        //   });
+        //   response.on('end', function() {
+        //     fs.unlink(new_filepath);
+        //     return callback(JSON.parse(buffer.toString()));
+        //   });
+        // });
+        //
+        // form.pipe(the_request);
       });
     });
   });
@@ -234,9 +241,10 @@ exports = module.exports = function(req, res) {
       if (err)
         return workflow.emit('exception', err);
       workflow.outcome.account = account;
-      req.app.db.models.User.findByIdAndUpdate(workflow.outcome.user._id, { $set: { roles: { account: account._id } } }).exec(function(err, count, res) {
+      req.app.db.models.User.findByIdAndUpdate(workflow.outcome.user._id, { $set: { roles: { account: account._id } } }).exec(function(err, res) {
         if (err)
           return workflow.emit('exception', err);
+        req.user = res;
         workflow.emit('downloadAndSaveImage.'+req.body.auth_type, function(image) {
           workflow.outcome.account.picture = image.minified;
           workflow.outcome.account.save(function(err, res) {

@@ -113,20 +113,19 @@ DELETE -> supprime
 
 ### Ensemble des routes
 
-### me -> retourne des informations concernant l'user connecté
-- get('/me');
+### me -> Retourne les informations concernant l'user connecté
+- `get('/me');`
+
+### deleteMyAccount -> Efface le compte de l'utilisateur et toutes les données liées à celui-ci
+- `delete('/deleteMyAccount');`
 
 ### users (Pour les users)
-- get('/users'); (tout les users)
-- get('/users/findOne'); (un user au pif)
-- get('/users/count'); (nombre d'users total)
-- get('/users/:id'); (ce user)
-- get('/users/:id/exists'); (si ce user existe)
-- get('/users/:id/eventCounter'); -> retourne le nombre d'event auquel cet user à participé.
-- put('/users/:id');
+- `get('/users/count');` nombre d'users total
+- `get('/users/:id');` ce user
+- `get('/users/:id/gallery');` les images postées par l'utilisateur
 
 ### events (un défi)
-- get('/events');  utilisé pour récupérer la liste des évènements
+- `get('/events');`  utilisé pour récupérer la liste des évènements
   - Liste des paramètres disponibles
     - `limit` permet de changer le nombre d'objets renvoyés (Défaut: 20)
     - `sort_by` permet de changer l'attribut servant à trier (Défaut: end)
@@ -143,7 +142,7 @@ DELETE -> supprime
       "title": "Margie's Travel",
       "acc": {
         "_id": "54e465146ec7262420f69cfa",
-        "picture": "http://localhost:8080/media/avatars/54e4656f6ec7262420f69d02.min.jpeg",
+        "picture": "http://127.0.0.1:8080/media/avatars/54e4656f6ec7262420f69d02.min.jpeg",
         "name": "Lilian Cahuzac"
       },
       "end": "2015-02-20T23:45:19.045Z",
@@ -156,57 +155,61 @@ DELETE -> supprime
 }
 ```
   - `has_more` vaut true si il reste des évènements à récupérer (utilisez alors `last_item`)
-- get('/events/findOne');
-- get('/events/count');
-- get('/events/:id');
-- get('/events/:id/exists');
-- post('/events'); (créer un défi)
+- `get('/events/findOne');`
+- `get('/events/count');`
+- `get('/events/:id')`;
+- `get('/events/:id/exists');`
+- `post('/events');` créer un défi
   - Fournissez dans le body :
     - `title` le titre du défi
-    - `desc` la description du défi
+    - `desc` la description du défi (optionnel)
     - `hashtag` les tags de recherche
-    - `place` l'adresse de l'evenement
-    - `latLng[]` la latitude
-    - `latLng[]` la longitude
-- put('/events/:id'); (met a jour ce défi)
-- delete('/events/:id'); (supprime ce défi)
+    - `place` l'adresse de l'evenement (optionnel)
+    - `latLng[]` la latitude (optionnel)
+    - `latLng[]` la longitude (optionnel)
+Déclarer deux `latLng[]` enverra un tableau
+- `put('/events/:id');` met a jour ce défi
+- `delete('/events/:id');` supprime ce défi
+
+#### Upload d'image
+
 
 ### eventRegisters (liste des users enregistré a un défi) incomplet
-- get('/eventregister/:id');
-- get('/eventregister/:id/exists');
-- post('/eventregister');
-- put('/eventregister/:id');
-- delete('/eventregister/:id');
+- `get('/eventregister/:id');`
+- `get('/eventregister/:id/exists');`
+- `post('/eventregister');`
+- `put('/eventregister/:id');`
+- `delete('/eventregister/:id');`
 
 ### notifications (à remplacer)
-- get('/notifications');
-- get('/notifications/findOne');
-- get('/notifications/count');
-- get('/notifications/:id');
-- get('/notifications/:id/exists');
-- post('/notifications');
-- put('/notifications/:id');
-- delete('/notifications/:id');
+- `get('/notifications');`
+- `get('/notifications/findOne');`
+- `get('/notifications/count');`
+- `get('/notifications/:id');`
+- `get('/notifications/:id/exists');`
+- `post('/notifications');`
+- `put('/notifications/:id');`
+- `delete('/notifications/:id');`
 
 ### badges (les badges)
-- get('/badges');
-- get('/badges/findOne');
-- get('/badges/count');---
-- get('/badges/:id');
-- get('/badges/:id/exists');
-- post('/badges');
-- put('/badges/:id');
-- delete('/badges/:id');
+- `get('/badges');`
+- `get('/badges/findOne');`
+- `get('/badges/count');`
+- `get('/badges/:id');`
+- `get('/badges/:id/exists');`
+- `post('/badges');`
+- `put('/badges/:id');`
+- `delete('/badges/:id');`
 
 ### validations (validation des users par rapport a un défis) incomplet
-- get('/validations');
-- get('/validations/findOne');
-- get('/validations/count');
-- get('/validations/:id');
-- get('/validations/:id/exists');
-- post('/validations');
-- put('/validations/:id');
-- delete('/validations/:id');
+- `get('/validations');`
+- `get('/validations/findOne');`
+- `get('/validations/count');`
+- `get('/validations/:id');`
+- `get('/validations/:id/exists');`
+- `post('/validations');`
+- `put('/validations/:id');`
+- `delete('/validations/:id');`
 
 
 # Testing

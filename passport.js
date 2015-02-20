@@ -46,7 +46,6 @@ exports = module.exports = function(app, passport) {
 
   passport.use(new BearerStrategy(
     function(accessToken, done) {
-      console.log(accessToken);
       app.db.models.AccessToken.findOne({ token: accessToken}).exec(function(err, token) {
         if (err) { return done(err); }
         if (!token) { return done(null, false); }
