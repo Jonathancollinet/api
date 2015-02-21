@@ -1,25 +1,22 @@
 'use strict';
+var moment = require('moment');
 
 exports = module.exports = function(app, mongoose) {
   var EventSchema = new mongoose.Schema({
-    type: { type: Number, min: 0, max: 2 },
-    category: { type: Number },
-    title: { type: String, trim: true, default: '' },
-    date: { type: Date },
-    date2: { type: Date },
+    title: { type: String, trim: true, required: true },
     desc: { type: String, default: '' },
-    numOfPtc: { type: Number, default: 0 },
-    hashtag: { type: String },
+    hashtag: { type: String, required: true },
     place: { type: String },
     latLng: [ Number ],
-    photos: { type: String, default: '' },
-    timeCreated: { type: Date, default: Date.now },
-    acc: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    accType: { type: String },
+    start: { type: Date, default: Date.now },
+    end: { type: Date, default: moment().hours(72).toDate() },
+    acc: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    accType: { type: String, required: true },
     toNotif: { type: Array },
     datas: { type: Object }
   }, {safe: true});
   EventSchema.plugin(require('./plugins/paginate'));
   EventSchema.set('autoIndex', (app.get('env') === 'development'));
+  EventSchema.index({ _id: 1 });
   app.db.model('Event', EventSchema);
 };

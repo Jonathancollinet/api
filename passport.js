@@ -10,7 +10,8 @@ var config = require('./config'),
 
 exports = module.exports = function(app, passport) {
   var AdokStrategy            = app.utils.Passport.AdokStrategy,
-      BearerStrategy          = require('passport-http-bearer').Strategy;
+      BearerStrategy          = require('passport-http-bearer').Strategy,
+      BasicStrategy           = require('passport-http').BasicStrategy;
 
   passport.use(new AdokStrategy(
     function(accessToken, done) {
@@ -28,9 +29,23 @@ exports = module.exports = function(app, passport) {
     }
   ));
 
+  passport.use(new BasicStrategy({ passReqToCallback: true },
+    function(req, username, password, done) {
+      app.db.models.Client.findOne({ client: { id: username, secret: password } }).exec(function(err, client) {
+        if (err) { return done(err); }
+        if (!client) { return done(null, false); }
+        app.db.models.RefreshToken.findOne({ token: req.body.refresh_token }).populate('user').exec(function(err, refreshToken) {
+          if (err) { return done(err); }
+          if (!refreshToken) { return done(null, false); }
+
+          return done(null, refreshToken.user, refreshToken.token);
+        });
+      });
+    }
+  ));
+
   passport.use(new BearerStrategy(
     function(accessToken, done) {
-      console.log(accessToken);
       app.db.models.AccessToken.findOne({ token: accessToken}).exec(function(err, token) {
         if (err) { return done(err); }
         if (!token) { return done(null, false); }
@@ -58,7 +73,6 @@ exports = module.exports = function(app, passport) {
   });
 
   passport.deserializeUser(function(id, done) {
-    console.log(id);
     req.app.db.models.User.findById(id).populate('roles.account').exec(function(err, user) {
       done(err, user);
     });

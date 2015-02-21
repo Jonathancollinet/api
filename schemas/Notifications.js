@@ -10,8 +10,7 @@ exports = module.exports = function(app, mongoose) {
     nameUser: {type: String},
     title: {type:String},
     from: {
-      account: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' },
-      pro: { type: mongoose.Schema.Types.ObjectId, ref: 'Pro' }
+      account: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' }
     },
     to: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' },
     date: { type: Date, default: Date.now },

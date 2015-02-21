@@ -5,11 +5,17 @@ var fs = require('fs');
 exports.name = 'Adok - API';
 exports.host = '127.0.0.1';
 exports.port = process.env.API_PORT || 8080;
-exports.url = 'http://localhost:8080/';
+exports.url = 'http://' + exports.host + ':' + exports.port + '/';
+exports.mediaserverUrl = 'http://127.0.0.1:8080/media/';
 exports.ssl = {
   enabled: false,
   key: fs.readFileSync('ssl/certificate.key', 'utf8'),
   certificate: fs.readFileSync('ssl/certificate.crt', 'utf8')
+};
+exports.multer = {
+  dest: './uploads/',
+  fileSize: 16777216, // 16 MB
+  files: 1
 };
 exports.mongodb = {
   uri: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || process.env.MONGO_URL || 'localhost/adok?safe=true'
@@ -53,3 +59,4 @@ exports.oauth = {
 };
 
 exports.cookieSecret = 'asd1$-lk5D-^kl*6-/asd&#';
+exports.gzip = true;

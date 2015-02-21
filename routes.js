@@ -6,32 +6,33 @@ exports.Router = function(app, passport) {
     router.all('*', app.utils.RateLimit.limiter);
   router.all('*', passport.authenticate(['bearer'], { session: false }));
 
-  router.use(function(req, res, next) {
-    res.set({
-        'Pragma': 'private'
-      , 'Cache-Control': 'private, no-cache'
-    });
-    next();
-  });
+  // router.use(function(req, res, next) {
+  //   res.set({
+  //       'Pragma': 'private'
+  //     , 'Cache-Control': 'private, no-cache'
+  //   });
+  //   next();
+  // });
   // me
   router.get('/me', require('./api/users/index').me);
+  router.delete('/deleteMyAccount', require('./api/users/index').delete);
 
   // users
-  router.get('/users', require('./api/users/index').listAll);
-  router.get('/users/findOne', require('./api/users/index').findOne);
+  // router.get('/users', require('./api/users/index').listAll);
+  // router.get('/users/findOne', require('./api/users/index').findOne);
   router.get('/users/count', require('./api/users/index').count);
   router.get('/users/:id', require('./api/users/index').findId);
-  router.get('/users/:id/exists', require('./api/users/index').exists);
-  router.get('/users/:id/eventCounter', require('./api/users/index').listAllForId);
+  router.get('/users/:id/gallery', require('./api/users/index').gallery);
+  // router.get('/users/:id/exists', require('./api/users/index').exists);
   // router.post('/users', require('./api/users/index').create);
-  router.put('/users/:id', require('./api/users/index').updateId);
-  // router.delete('/users/:id', require('./api/users/index').delete);
+  // router.put('/users/:id', require('./api/users/index').updateId);
 
   // events
   router.get('/events', require('./api/events/index').listAll);
   router.get('/events/findOne', require('./api/events/index').findOne);
   router.get('/events/count', require('./api/events/index').count);
   router.get('/events/:id', require('./api/events/index').findId);
+  router.get('/events/:id/gallery', require('./api/events/index').gallery)
   router.get('/events/:id/exists', require('./api/events/index').exists);
   router.post('/events', require('./api/events/index').create);
   router.put('/events/:id', require('./api/events/index').updateId);
