@@ -5,6 +5,7 @@ exports = module.exports = function(app, mongoose) {
   var EventSchema = new mongoose.Schema({
     title: { type: String, trim: true, required: true },
     desc: { type: String, default: '' },
+    picture: { type: String, default: '' },
     hashtag: { type: String, required: true },
     place: { type: String },
     latLng: [ Number ],

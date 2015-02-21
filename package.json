@@ -1,6 +1,6 @@
 {
   "name": "website",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "private": true,
   "scripts": {
     "start": "node app.js"
@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "fake-identity": "^1.0.6",
+    "lorem-ipsum": "^1.0.1",
     "mocha": "^2.1.0",
     "sleep": "^2.0.0"
   }

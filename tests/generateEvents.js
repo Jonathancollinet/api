@@ -3,6 +3,7 @@ var mongoose = require('mongoose')
   , express = require('express')
   , config = require('../config')
   , Identity = require('fake-identity')
+  , Ipsum = require('lorem-ipsum')
   , assert = require('assert')
   , usleep = require('sleep').usleep
   , app = express();
@@ -42,6 +43,8 @@ describe('test', function(){
         var toSave = {
             title: self.company
           , hashtag: self.company.split(' ')
+          , desc: Ipsum({ count: 1, units: 'paragraphs'}).slice(0, Math.floor(Math.random() * 301) % 300)
+          , picture: 'http://lorempixel.com/500/500/'
           , acc: user._id
           , accType: 'account'
         };

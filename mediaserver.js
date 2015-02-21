@@ -17,7 +17,7 @@ exports.Router = function(app, passport) {
     var root = req.params.root + (req.params.min ? '.min' : '');
     req.app.ms.getFileReadStream(find, root, function(err, stream) {
       if (err) { return next(err); }
-      if (!stream) { return next(new Error('Stream argument ' + stream)); }
+      if (!stream) { return next(new Error('NULL stream argument')); }
 
       var statusCode = req.app.ms.Grid.setCacheControl(stream.metadatas, req, res);
       res.status(statusCode)

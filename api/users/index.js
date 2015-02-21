@@ -1,14 +1,17 @@
 exports.me = function(req, res, next) {
-	if (!req.user)
-		return next({ error: 'Missing', message: 'User undefined' });
-	res.json({
-		provider: req.facebook ? 'facebook' : 'google',
-		email: req.user.email,
-		picture: req.app.Config.mediaserverUrl + req.user.roles.account.picture,
-		name: req.user.roles.account.name.full,
-		first_name: req.user.roles.account.name.first,
-		last_name: req.user.roles.account.name.last,
-		verified: req.user.roles.account.isVerified == 'yes' ? true : false
+	req.app.ms.Grid.find({ 'metadata.user': req.user._id, root: 'events'}, function(err, files) {
+		res.json({
+			provider: req.facebook ? 'facebook' : 'google',
+			email: req.user.email,
+			picture: (req.user.roles.account.picture.test(/^(http).*$/) ? '' : req.app.Config.mediaserverUrl) + req.user.roles.account.picture,
+			name: req.user.roles.account.name.full,
+			first_name: req.user.roles.account.name.first,
+			last_name: req.user.roles.account.name.last,
+			verified: req.user.roles.account.isVerified == 'yes' ? true : false,
+			images: files.length,
+			friends: 0,
+			badges: 0
+		});
 	});
 }
 
@@ -23,7 +26,7 @@ exports.history = function(req, res, next) {
 exports.gallery = function(req, res, next) {
 	var workflow = new (require('events').EventEmitter)();
 
-	req.app.ms.Grid.find({ 'metadata.user': req.app.ms.Grid.tryParseObjectId(req.params.id), root: "events" }, function(err, found) {
+	req.app.ms.Grid.find({ 'metadata.user': req.app.ms.Grid.tryParseObjectId(req.params.id || req.user._id), root: "events" }, function(err, found) {
 		if (err) { return next(err); }
 		var filesArray = [];
 		workflow.on('end', function() {
@@ -44,7 +47,7 @@ exports.gallery = function(req, res, next) {
 				};
 				filesArray.push(toPush);
 				if (i === (files.length - 1))
-					workflow.emit('end');
+					return workflow.emit('end');
 				workflow.emit('parse object', files, ++i);
 			});
 		});

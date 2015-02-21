@@ -16,7 +16,13 @@ exports.Router = function(app, passport) {
   // me
 
   router.get('/me', require('./api/users/index').me);
+<<<<<<< Updated upstream
   router.get('/history', require('./api/users/index').history);
+=======
+  router.get('/me/gallery', require('./api/users/index').gallery);
+  router.get('/me/friends', require('./api/users/index').gallery);
+  router.get('/me/badges', require('./api/users/index').gallery);
+>>>>>>> Stashed changes
   router.delete('/deleteMyAccount', require('./api/users/index').delete);
 
   // users

@@ -3,7 +3,7 @@ exports.listAll = function(req, res) {
 			limit: req.query.limit || 20
 		, sort: {}
 		, filters: {}
-		, keys: '_id acc start end numOfPtc desc title'
+		, keys: '_id acc start end numOfPtc desc title picture'
 		, populate: [{
 				path: 'acc',
 				keys: 'roles.account',
