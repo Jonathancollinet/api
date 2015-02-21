@@ -14,7 +14,9 @@ exports.Router = function(app, passport) {
   //   next();
   // });
   // me
+
   router.get('/me', require('./api/users/index').me);
+  router.get('/history', require('./api/users/index').history);
   router.delete('/deleteMyAccount', require('./api/users/index').delete);
 
   // users
@@ -26,6 +28,9 @@ exports.Router = function(app, passport) {
   // router.get('/users/:id/exists', require('./api/users/index').exists);
   // router.post('/users', require('./api/users/index').create);
   // router.put('/users/:id', require('./api/users/index').updateId);
+
+  // search
+  router.post('/search/users', require("./api/search/index").users);
 
   // events
   router.get('/events', require('./api/events/index').listAll);

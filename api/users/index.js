@@ -12,6 +12,14 @@ exports.me = function(req, res, next) {
 	});
 }
 
+exports.history = function(req, res, next) {
+	req.app.db.models.Event.find({acc: {_id: req.user._id}}).exec(function(err, row) {
+		if (err)
+			return next(err);
+		res.json({data: row});
+	});
+}
+
 exports.gallery = function(req, res, next) {
 	var workflow = new (require('events').EventEmitter)();
 

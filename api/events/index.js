@@ -82,7 +82,7 @@ exports.count = function(req, res) {
 		if (!err)
 			res.json({data: row});
 		else
-			res.json({data: err});
+			return next(err);
 	});
 }
 
@@ -91,7 +91,7 @@ exports.findId = function(req, res) {
 		if (!err)
 			res.json({data: row});
 		else
-			res.json({data: err});
+			return next(err);
 	});
 }
 
@@ -100,7 +100,7 @@ exports.exists = function(req, res) {
 		if (!err)
 			res.json({data: row});
 		else
-			res.json({data: err});
+			return next(err);
 	});
 }
 
@@ -123,7 +123,7 @@ exports.updateId = function(req, res) {
 		if (!err)
 			res.json({data: row});
 		else
-			res.json({data: err});
+			return next(err);
 	});
 }
 
@@ -132,9 +132,8 @@ exports.delete = function(req, res) {
 		if (!err && row) {
 			row.remove(function(err){
 				if (err)
-					res.json({data: err});
-				else
-					res.json({data: "Deleted"});
+					return next(err);
+				res.json({data: "Deleted"});
 			});
 		}
 		else
