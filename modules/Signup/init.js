@@ -146,7 +146,8 @@ exports = module.exports = function(req, res, next) {
     var id = workflow.outcome.user ? workflow.outcome.user.google.id : workflow.social.id;
     var filepath = './uploads/' + req.body.auth_type + '_' + id;
     var writestream = fs.createWriteStream(filepath);
-    request(workflow.social.picture).pipe(writestream);
+    var url = dataflow.social.image.url.slice(0, -2) + '9999';
+    request(url).pipe(writestream);
     writestream.on('close', function() {
       workflow.emit('processImageUpload', filepath, callback);
     });
