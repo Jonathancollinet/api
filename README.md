@@ -181,15 +181,16 @@ Déclarer deux `latLng[]` enverra un tableau
 - `put('/eventregister/:id');`
 - `delete('/eventregister/:id');`
 
-### notifications (à remplacer)
-- `get('/notifications');`
-- `get('/notifications/findOne');`
-- `get('/notifications/count');`
-- `get('/notifications/:id');`
-- `get('/notifications/:id/exists');`
-- `post('/notifications');`
-- `put('/notifications/:id');`
-- `delete('/notifications/:id');`
+schéma pour les events register->
+```json
+{
+    "event": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Event" },
+    "account": [{
+      "_id": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Account" },
+      "conf": { "type": "Number", "default": "0" }
+    }]
+}
+```
 
 ### badges (les badges)
 - `get('/badges');`
@@ -201,6 +202,15 @@ Déclarer deux `latLng[]` enverra un tableau
 - `put('/badges/:id');`
 - `delete('/badges/:id');`
 
+schéma pour un badge->
+```json
+{
+	"name":  {"type": "String"},
+	"title": {"type": "String"},
+	"desc": {"type": "String"},
+}
+```
+
 ### validations (validation des users par rapport a un défis) incomplet
 - `get('/validations');`
 - `get('/validations/findOne');`
@@ -210,7 +220,6 @@ Déclarer deux `latLng[]` enverra un tableau
 - `post('/validations');`
 - `put('/validations/:id');`
 - `delete('/validations/:id');`
-
 
 # Testing
 
