@@ -140,7 +140,6 @@ exports.updateId = function(req, res, next) {
 			var done = function() {
 				req.app.utils.Upload.OriginalAndMinified(req, res, next, { root: 'events', filepath: './'+req.files.file.path.replace('\\', '/') }, function(event_image) {
 					options.picture = event_image.minified;
-					console.log(options);
 					req.app.db.models.Event.update({ _id: req.params.id }, { $set: options }).exec(function(err, the_event) {
 						if (err)
 							return next(err);
