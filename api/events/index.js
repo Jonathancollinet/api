@@ -90,7 +90,6 @@ exports.findId = function(req, res, next) {
 	req.app.db.models.Event.findById(req.params.id).select('-__v -accType -toNotif').populate({ path: 'acc', select: '_id roles' }).lean().exec(function(err, row) {
 		if (err)
 			return next(err);
-		// _id acc start end numOfPtc desc title picture
 		req.app.db.models.Account.populate(row, { path: 'acc.roles.account', select: 'picture name.full' }, function(err, row) {
 			row.picture = req.app.Config.mediaserverUrl + row.picture;
 			row.acc.name = row.acc.roles.account.name.full;
@@ -126,28 +125,50 @@ exports.create = function(req, res, next) {
 
 exports.updateId = function(req, res, next) {
 	var options = req.body;
-	// console.log(req.files);
-	// return next();
-	if (req.files.file) {
-		req.body.root = "events";
-		req.body.event = req.params.id;
-		// console.log(req.body);
-		req.app.utils.Upload.OriginalAndMinified(req, res, next, { root: 'events', filepath: './'+req.files.file.path.replace('\\', '/') }, function(event_image) {
-			options.picture = event_image.minified;
+	req.app.db.models.Event.findById(req.params.id).lean().exec(function(err, event) {
+		if (err || !event)
+			return next(err || (new Error('Ce challenge n\'existe pas')));
+		processUpdate(event);
+	});
+
+	var processUpdate = function(event) {
+		if (req.files.file) {
+			req.body.root = "events";
+			req.body.event = req.params.id;
+			req.body.metaType = "event";
+
+			var done = function() {
+				req.app.utils.Upload.OriginalAndMinified(req, res, next, { root: 'events', filepath: './'+req.files.file.path.replace('\\', '/') }, function(event_image) {
+					options.picture = event_image.minified;
+					req.app.db.models.Event.update({ _id: req.params.id }, { $set: options }).exec(function(err, the_event) {
+						if (err)
+							return next(err);
+						the_event.picture = req.app.Config.mediaserverUrl + the_event.picture;
+						return res.json(the_event);
+					});
+				});
+			};
+			if (event.picture) {
+				req.app.ms.events.remove({ 'metadata.type': "event", 'metadata.event': req.app.ms.Grid.tryParseObjectId(req.params.id) }, function(e, r) {
+					if (e)
+						return next(e);
+					req.app.ms.events_min.remove({ 'metadata.type': "event", 'metadata.event': req.app.ms.Grid.tryParseObjectId(req.params.id) }, function(e, r) {
+						if (e)
+							return next(e);
+						done();
+					});
+				});
+			} else {
+				done();
+			}
+		} else {
 			req.app.db.models.Event.update({ _id: req.params.id }, { $set: options }).exec(function(err, the_event) {
 				if (err)
 					return next(err);
-				the_event.picture = req.app.Config.mediaserverUrl + the_event.picture;
 				return res.json(the_event);
 			});
-		});
-	} else {
-		req.app.db.models.Event.update({ _id: req.params.id }, { $set: options }).exec(function(err, the_event) {
-			if (err)
-				return next(err);
-			return res.json(the_event);
-		});
-	}
+		}
+	};
 }
 
 exports.delete = function(req, res, next) {
