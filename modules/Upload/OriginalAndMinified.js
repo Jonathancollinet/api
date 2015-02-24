@@ -18,7 +18,8 @@ exports = module.exports = function(req, res, next, options, done) {
   });
 
   workflow.on('get file infos and check mime', function() {
-    var reg = options.filepath.match(/([^/.]*)\.(jpg|jpeg|png|gif)/i);
+    var reg = options.filepath.match(/\/?([^/.]*)\.(jpg|jpeg|png|gif)/i);
+    console.log(reg);
     workflow.outcome = { original: null, minified: null };
     workflow.imgName = reg[1];
     workflow.imgExt = reg[2];
