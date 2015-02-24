@@ -44,7 +44,7 @@ describe('test', function(){
             title: self.company
           , hashtag: self.company.split(' ')
           , desc: Ipsum({ count: 1, units: 'paragraphs'}).slice(0, Math.floor(Math.random() * 301) % 300)
-          , picture: 'http://lorempixel.com/500/500/'
+	  , picture: 'http://lorempixel.com/500/500/nightlife/' + ((i + 1) % 11)
           , acc: user._id
           , accType: 'account'
         };
