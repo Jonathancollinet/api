@@ -6,7 +6,7 @@ exports = module.exports = function(app, mongoose) {
     title: { type: String, trim: true, required: true },
     desc: { type: String, default: '' },
     picture: { type: String, default: '' },
-    hashtag: { type: String, required: true },
+    hashtag: { type: Array, required: true },
     place: { type: String },
     latLng: [ Number ],
     start: { type: Date, default: Date.now },
