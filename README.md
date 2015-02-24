@@ -167,8 +167,19 @@ DELETE -> supprime
     - `place` l'adresse de l'evenement (optionnel)
     - `latLng[]` la latitude (optionnel)
     - `latLng[]` la longitude (optionnel)
-Déclarer deux `latLng[]` enverra un tableau
-- `put('/events/:id');` met a jour ce défi
+    - `latLng` array json (optionnel)
+  - Déclarer deux `latLng[]` enverra un tableau. Vous pouvez egalement faire latLng = array_json
+- `put('/events/:id');` met a jour ce défi (Tous les champs sont optionnels)
+  - Fournir dans le body (optionnel) :
+    - `title` le titre du défi
+    - `desc` la description du défi (optionnel)
+    - `hashtag` les tags de recherche
+    - `place` l'adresse de l'evenement (optionnel)
+    - `latLng[]` la latitude (optionnel)
+    - `latLng[]` la longitude (optionnel)
+    - `latLng` array json (optionnel)
+  - Pour upload une image, la requete PUT doit être une requête multipart/form-data et fournir dans le body :
+    - `file` le fichier a upload
 - `delete('/events/:id');` supprime ce défi
 
 #### Upload d'image
