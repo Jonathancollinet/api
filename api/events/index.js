@@ -3,8 +3,8 @@ exports.listAll = function(req, res) {
 			limit: req.query.limit || 20
 		, sort: {}
 		, filters: {}
-		, keys: '_id acc start end numOfPtc desc title picture'
-		, populate: [{
+		, keys: '_id acc start end numOfPtc desc title picture hashtag latLng'
+	    , populate: [{
 				path: 'acc',
 				keys: 'roles.account',
 			}]
@@ -113,7 +113,8 @@ exports.create = function(req, res) {
 		if (err) {
 			return next(err);
 		}
-		row.__v = undefined;
+	    row.__v = undefined;
+	    
 		res.json(row);
 	});
 }

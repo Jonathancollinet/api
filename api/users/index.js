@@ -1,6 +1,7 @@
 exports.me = function(req, res, next) {
 	req.app.ms.Grid.find({ 'metadata.user': req.user._id, root: 'events'}, function(err, files) {
-		res.json({
+	    res.json({
+		id:req.user._id,
 			provider: req.facebook ? 'facebook' : 'google',
 			email: req.user.email,
 			picture: (req.user.roles.account.picture.test(/^(http).*$/) ? '' : req.app.Config.mediaserverUrl) + req.user.roles.account.picture,
