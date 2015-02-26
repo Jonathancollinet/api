@@ -147,7 +147,10 @@ DELETE -> supprime
       },
       "end": "2015-02-20T23:45:19.045Z",
       "start": "2015-02-18T18:45:19.045Z",
-      "desc": ""
+      "latLng": [],
+      "hashtag": [],
+      "desc": "",
+      "picture": ""
     }
   ],
   "has_more": true,

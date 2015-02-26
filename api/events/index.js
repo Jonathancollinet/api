@@ -91,9 +91,9 @@ exports.findId = function(req, res, next) {
 		if (err)
 			return next(err);
 		req.app.db.models.Account.populate(row, { path: 'acc.roles.account', select: 'picture name.full' }, function(err, row) {
-			row.picture = req.app.Config.mediaserverUrl + row.picture;
+			row.picture = (/^(https?)/.test(row.picture) || !row.picture ? '' : req.app.Config.mediaserverUrl) + row.picture;
 			row.acc.name = row.acc.roles.account.name.full;
-			row.acc.picture = req.app.Config.mediaserverUrl + row.acc.roles.account.picture;
+			row.acc.picture = (/^(https?)/.test(row.acc.roles.account.picture) ? '' : req.app.Config.mediaserverUrl) + row.acc.roles.account.picture;
 			row.acc.roles = undefined;
 			res.json(row);
 		});
@@ -118,9 +118,8 @@ exports.create = function(req, res, next) {
 		if (err) {
 			return next(err);
 		}
-	    row.__v = undefined;
-	    
-		res.json(row);
+		req.params.id = row._id;
+		exports.findId(req, res, next);
 	});
 }
 
