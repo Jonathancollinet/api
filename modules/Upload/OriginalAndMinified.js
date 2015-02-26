@@ -18,7 +18,7 @@ exports = module.exports = function(req, res, next, options, done) {
   });
 
   workflow.on('get file infos and check mime', function() {
-    var reg = options.filepath.match(/([^/.]*)\.(jpg|jpeg|png|gif)/i);
+    var reg = options.filepath.match(/\/?([^/.]*)\.(jpg|jpeg|png|gif)/i);
     workflow.outcome = { original: null, minified: null };
     workflow.imgName = reg[1];
     workflow.imgExt = reg[2];
@@ -41,6 +41,10 @@ exports = module.exports = function(req, res, next, options, done) {
         }
       , root: options.root
     };
+    if (req.body.metaType) {
+      if (req.body.metaType === "avatar") { toCreate.metadata.type = "avatar"; }
+      else if (req.body.metaType === "event") { toCreate.metadata.type = "event"; }
+    }
     if (req.body.event)
       toCreate.metadata.event = req.app.ms.Grid.tryParseObjectId(req.body.event);
     req.app.ms.getFileWriteStream(toCreate, workflow.imgExt, function(err, writeStream) {
@@ -82,6 +86,10 @@ exports = module.exports = function(req, res, next, options, done) {
           }
         , root: options.root + '.min'
       };
+      if (req.body.metaType) {
+        if (req.body.metaType === "avatar") { toCreate.metadata.type = "avatar"; }
+        else if (req.body.metaType === "event") { toCreate.metadata.type = "event"; }
+      }
       if (req.body.event)
         toCreate.metadata.event = req.app.ms.Grid.tryParseObjectId(req.body.event);
       req.app.ms.getFileWriteStream(toCreate, 'min.' + workflow.imgExt, function(err, writeStream) {

@@ -63,6 +63,9 @@ module.exports = exports = function pagedFindPlugin (schema, filters) {
                 items[i].acc.picture = mediaserverUrl + items[i].acc.picture;
                 items[i].acc.roles = undefined;
               }
+              if (items[i].picture) {
+                items[i].picture = (/^(http)s?\:\/\//.test(items[i].picture) ? '' : mediaserverUrl) + items[i].picture;
+              }
               if (i == (items.length - 1)) {
                 return workflow.emit('parse end', items);
               }

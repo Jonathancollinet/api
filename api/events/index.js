@@ -1,4 +1,4 @@
-exports.listAll = function(req, res) {
+exports.listAll = function(req, res, next) {
 	var options = {
 			limit: req.query.limit || 20
 		, sort: {}
@@ -33,7 +33,7 @@ exports.listAll = function(req, res) {
 	});
 }
 
-exports.findOne = function(req, res) {
+exports.findOne = function(req, res, next) {
 	req.app.db.models.Event.findOne().exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
@@ -77,7 +77,7 @@ exports.gallery = function(req, res, next) {
 	});
 }
 
-exports.count = function(req, res) {
+exports.count = function(req, res, next) {
 	req.app.db.models.Event.find().count().exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
@@ -86,7 +86,21 @@ exports.count = function(req, res) {
 	});
 }
 
-exports.findId = function(req, res) {
+exports.findId = function(req, res, next) {
+	req.app.db.models.Event.findById(req.params.id).select('-__v -accType -toNotif').populate({ path: 'acc', select: '_id roles' }).lean().exec(function(err, row) {
+		if (err)
+			return next(err);
+		req.app.db.models.Account.populate(row, { path: 'acc.roles.account', select: 'picture name.full' }, function(err, row) {
+			row.picture = req.app.Config.mediaserverUrl + row.picture;
+			row.acc.name = row.acc.roles.account.name.full;
+			row.acc.picture = req.app.Config.mediaserverUrl + row.acc.roles.account.picture;
+			row.acc.roles = undefined;
+			res.json(row);
+		});
+	});
+}
+
+exports.exists = function(req, res, next) {
 	req.app.db.models.Event.findById(req.params.id).exec(function(err, row) {
 		if (!err)
 			res.json({data: row});
@@ -95,16 +109,7 @@ exports.findId = function(req, res) {
 	});
 }
 
-exports.exists = function(req, res) {
-	req.app.db.models.Event.findById(req.params.id).exec(function(err, row) {
-		if (!err)
-			res.json({data: row});
-		else
-			return next(err);
-	});
-}
-
-exports.create = function(req, res) {
+exports.create = function(req, res, next) {
 	var object = req.body;
 	object.acc = req.user._id;
 	object.accType = "account";
@@ -119,16 +124,55 @@ exports.create = function(req, res) {
 	});
 }
 
-exports.updateId = function(req, res) {
-	req.app.db.models.Event.update({_id: req.params.id}).exec(function(err, row) {
-		if (!err)
-			res.json({data: row});
-		else
-			return next(err);
+exports.updateId = function(req, res, next) {
+	var options = req.body;
+	req.app.db.models.Event.findById(req.params.id).lean().exec(function(err, event) {
+		if (err || !event)
+			return next(err || (new Error('Ce challenge n\'existe pas')));
+		processUpdate(event);
 	});
+
+	var processUpdate = function(event) {
+		if (req.files.file) {
+			req.body.root = "events";
+			req.body.event = req.params.id;
+			req.body.metaType = "event";
+
+			var done = function() {
+				req.app.utils.Upload.OriginalAndMinified(req, res, next, { root: 'events', filepath: './'+req.files.file.path.replace('\\', '/') }, function(event_image) {
+					options.picture = event_image.minified;
+					req.app.db.models.Event.update({ _id: req.params.id }, { $set: options }).exec(function(err, the_event) {
+						if (err)
+							return next(err);
+						the_event.picture = req.app.Config.mediaserverUrl + the_event.picture;
+						return res.json(the_event);
+					});
+				});
+			};
+			if (event.picture) {
+				req.app.ms.events.remove({ 'metadata.type': "event", 'metadata.event': req.app.ms.Grid.tryParseObjectId(req.params.id) }, function(e, r) {
+					if (e)
+						return next(e);
+					req.app.ms.events_min.remove({ 'metadata.type': "event", 'metadata.event': req.app.ms.Grid.tryParseObjectId(req.params.id) }, function(e, r) {
+						if (e)
+							return next(e);
+						done();
+					});
+				});
+			} else {
+				done();
+			}
+		} else {
+			req.app.db.models.Event.update({ _id: req.params.id }, { $set: options }).exec(function(err, the_event) {
+				if (err)
+					return next(err);
+				return res.json(the_event);
+			});
+		}
+	};
 }
 
-exports.delete = function(req, res) {
+exports.delete = function(req, res, next) {
 	req.app.db.models.Event.findById(req.params.id).exec(function(err, row) {
 		if (!err && row) {
 			row.remove(function(err){

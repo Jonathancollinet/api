@@ -167,8 +167,19 @@ DELETE -> supprime
     - `place` l'adresse de l'evenement (optionnel)
     - `latLng[]` la latitude (optionnel)
     - `latLng[]` la longitude (optionnel)
-Déclarer deux `latLng[]` enverra un tableau
-- `put('/events/:id');` met a jour ce défi
+    - `latLng` array json (optionnel)
+  - Déclarer deux `latLng[]` enverra un tableau. Vous pouvez egalement faire latLng = array_json
+- `put('/events/:id');` met a jour ce défi (Tous les champs sont optionnels)
+  - Fournir dans le body (optionnel) :
+    - `title` le titre du défi
+    - `desc` la description du défi (optionnel)
+    - `hashtag` les tags de recherche
+    - `place` l'adresse de l'evenement (optionnel)
+    - `latLng[]` la latitude (optionnel)
+    - `latLng[]` la longitude (optionnel)
+    - `latLng` array json (optionnel)
+  - Pour upload une image, la requete PUT doit être une requête multipart/form-data et fournir dans le body :
+    - `file` le fichier a upload
 - `delete('/events/:id');` supprime ce défi
 
 #### Upload d'image
@@ -181,15 +192,16 @@ Déclarer deux `latLng[]` enverra un tableau
 - `put('/eventregister/:id');`
 - `delete('/eventregister/:id');`
 
-### notifications (à remplacer)
-- `get('/notifications');`
-- `get('/notifications/findOne');`
-- `get('/notifications/count');`
-- `get('/notifications/:id');`
-- `get('/notifications/:id/exists');`
-- `post('/notifications');`
-- `put('/notifications/:id');`
-- `delete('/notifications/:id');`
+schéma pour les events register->
+```json
+{
+    "event": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Event" },
+    "account": [{
+      "_id": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Account" },
+      "conf": { "type": "Number", "default": "0" }
+    }]
+}
+```
 
 ### badges (les badges)
 - `get('/badges');`
@@ -201,6 +213,15 @@ Déclarer deux `latLng[]` enverra un tableau
 - `put('/badges/:id');`
 - `delete('/badges/:id');`
 
+schéma pour un badge->
+```json
+{
+	"name":  {"type": "String"},
+	"title": {"type": "String"},
+	"desc": {"type": "String"},
+}
+```
+
 ### validations (validation des users par rapport a un défis) incomplet
 - `get('/validations');`
 - `get('/validations/findOne');`
@@ -210,7 +231,6 @@ Déclarer deux `latLng[]` enverra un tableau
 - `post('/validations');`
 - `put('/validations/:id');`
 - `delete('/validations/:id');`
-
 
 # Testing
 

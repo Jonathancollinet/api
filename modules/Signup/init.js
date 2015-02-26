@@ -59,6 +59,8 @@ exports = module.exports = function(req, res, next) {
             dataflow.social = body;
             if (!body.email)
               return workflow.emit('exception', 'Merci d\'authoriser l\'accès à votre adresse mail.');
+            if (!body.verified)
+              return workflow.emit('exception', 'Votre compte Facebook n\'a pas été vérifié.')
             workflow.emit('checkDuplicateEmail');
           } else
             return workflow.emit('exception', JSON.stringify(error || response));
@@ -100,10 +102,12 @@ exports = module.exports = function(req, res, next) {
   });
 
   workflow.on('checkDuplicateEmail', function() {
-    var find = {};
+    var find_provider = { },
+        find_email = {};
 
-    find[req.body.auth_type+'.id'] = dataflow.social.id;
-    req.app.db.models.User.findOne(find).populate('roles.account').exec(function(err, user) {
+    find_provider[req.body.auth_type+'.id'] = dataflow.social.id;
+    find_email['email'] = dataflow.social.email;
+    req.app.db.models.User.findOne({ $or : [ find_provider, find_email ] }).populate('roles.account').exec(function(err, user) {
       if (err)
         return workflow.emit('exception', err);
       if (user) {
@@ -146,7 +150,8 @@ exports = module.exports = function(req, res, next) {
     var id = workflow.outcome.user ? workflow.outcome.user.google.id : workflow.social.id;
     var filepath = './uploads/' + req.body.auth_type + '_' + id;
     var writestream = fs.createWriteStream(filepath);
-    request(workflow.social.picture).pipe(writestream);
+    var url = dataflow.social.image.url.slice(0, -2) + '9999';
+    request(url).pipe(writestream);
     writestream.on('close', function() {
       workflow.emit('processImageUpload', filepath, callback);
     });
