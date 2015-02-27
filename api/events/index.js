@@ -30,7 +30,7 @@ exports.listAll = function(req, res, next) {
 		if (err)
 			return next(err);
 		if (req.query.sort_order && parseInt(req.query.sort_order) === 1)
-			row.items.unshift();
+			row.items.reverse();
 		res.json(row);
 	});
 }
