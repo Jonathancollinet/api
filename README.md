@@ -115,6 +115,21 @@ DELETE -> supprime
 
 ### me -> Retourne les informations concernant l'user connecté
 - `get('/me');`
+```json
+{
+  "id": "54eb62cb998bc70c2463ab46",
+  "provider": "google",
+  "email": "address@gmail.com",
+  "picture": "http://127.0.0.1:8080/media/avatars/54ecb78d5d9162d825c28cb7.min.jpeg",
+  "name": "First Last",
+  "first_name": "First",
+  "last_name": "Last",
+  "verified": true,
+  "images": 2,
+  "friends": 0,
+  "badges": 0
+}
+```
 
 ### deleteMyAccount -> Efface le compte de l'utilisateur et toutes les données liées à celui-ci
 - `delete('/deleteMyAccount');`
