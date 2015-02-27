@@ -17,7 +17,7 @@ exports.listAll = function(req, res, next) {
 	if (req.query.sort_by) {
 		options.sort[req.query.sort_by] = req.query.sort_order ? parseInt(req.query.sort_order) : -1;
 	} else {
-		options.sort = { _id: -1 };
+		options.sort = { _id: req.query.sort_order ? parseInt(req.query.sort_order) : -1 };
 	}
 	if (req.query.last_item) {
 		if (options.sort._id == -1) {
@@ -26,10 +26,12 @@ exports.listAll = function(req, res, next) {
 			options.filters = { _id: { $gt: req.query.last_item } };
 		}
 	}
-	req.app.db.models.Event.paginate(options, function(err, rows) {
+	req.app.db.models.Event.paginate(options, function(err, row) {
 		if (err)
 			return next(err);
-		res.json(rows);
+		if (req.query.sort_order && parseInt(req.query.sort_order) === 1)
+			row.items.unshift();
+		res.json(row);
 	});
 }
 
