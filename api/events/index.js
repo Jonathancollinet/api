@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 exports.listAll = function(req, res, next) {
 	var options = {
 			limit: req.query.limit || 20
@@ -61,10 +63,10 @@ exports.gallery = function(req, res, next) {
 						acc: {
 								id: user._id
 							, name: user.roles.account.name.full
-							, picture: user.roles.account.picture
+							, picture: (/^https?/.test(user.roles.account.picture) ? '' : req.app.Config.mediaserverUrl) + user.roles.account.picture
 						}
-					, original: req.app.Config.mediaserverUrl + 'avatars/' + explod[0]
-					, minified: req.app.Config.mediaserverUrl + 'avatars/' + explod[1] + '.min.' + explod[2]
+					, original: req.app.Config.mediaserverUrl + 'events/' + explod[0]
+					, minified: req.app.Config.mediaserverUrl + 'events/' + explod[1] + '.min.' + explod[2]
 				};
 				filesArray.push(toPush);
 				if (i === (files.length - 1))
@@ -187,7 +189,7 @@ exports.join = function(req, res, next) {
 
 	req.app.db.models.Event.findById(eid, function(err, row) {
 		if (err || !row) {
-			return next(err || "Event not found");
+			return done(err || "Evènement introuvable");
 		}
 		register();
 	});
@@ -195,19 +197,14 @@ exports.join = function(req, res, next) {
 	function register() {
 		req.app.db.models.EventRegister.findOne(fields, function(err, row) {
 			if (err) {
-				return next(err);
+				return done(err);
 			}
 			if (row) {
-				row.remove(function(err, row) {
-					if (err) {
-						return next(err);
-					}
-					done();
-				});
+				return done("Vous avez déjà participé à cet évènement");
 			} else {
 				req.app.db.models.EventRegister.create(fields, function(err, row) {
 					if (err) {
-						return next(err);
+						return done(err);
 					}
 					done();
 				});
@@ -215,7 +212,11 @@ exports.join = function(req, res, next) {
 		});
 	}
 
-	function done() {
+	function done(err) {
+		if (err) {
+			fs.unlink(req.files.file.path);
+			return next(typeof err === "string" ? new Error(err) : err);
+		}
 		req.body.root = "events";
 		req.body.event = req.params.id;
 		req.body.metaType = "event";
