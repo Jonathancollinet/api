@@ -137,12 +137,12 @@ exports.updateId = function(req, res, next) {
 		if (req.files.file) {
 			req.body.root = "events";
 			req.body.event = req.params.id;
-			req.body.metaType = "event";
+			req.body.metaType = "event_background";
 
 			var done = function() {
 				req.app.utils.Upload.OriginalAndMinified(req, res, next, { root: 'events', filepath: './'+req.files.file.path.replace('\\', '/') }, function(event_image) {
 					options.picture = event_image.minified;
-					req.app.db.models.Event.update({ _id: req.params.id }, { $set: options }).exec(function(err, the_event) {
+					req.app.db.models.Event.findByIdAndUpdate(req.params.id, { $set: options }).exec(function(err, the_event) {
 						if (err)
 							return next(err);
 						the_event.picture = req.app.Config.mediaserverUrl + the_event.picture;
@@ -151,10 +151,10 @@ exports.updateId = function(req, res, next) {
 				});
 			};
 			if (event.picture) {
-				req.app.ms.events.remove({ 'metadata.type': "event", 'metadata.event': req.app.ms.Grid.tryParseObjectId(req.params.id) }, function(e, r) {
+				req.app.ms.events.remove({ 'metadata.type': "event_background", 'metadata.event': req.app.ms.Grid.tryParseObjectId(req.params.id) }, function(e, r) {
 					if (e)
 						return next(e);
-					req.app.ms.events_min.remove({ 'metadata.type': "event", 'metadata.event': req.app.ms.Grid.tryParseObjectId(req.params.id) }, function(e, r) {
+					req.app.ms.events_min.remove({ 'metadata.type': "event_background", 'metadata.event': req.app.ms.Grid.tryParseObjectId(req.params.id) }, function(e, r) {
 						if (e)
 							return next(e);
 						done();
@@ -171,6 +171,60 @@ exports.updateId = function(req, res, next) {
 			});
 		}
 	};
+}
+
+exports.join = function(req, res, next) {
+	var eid = req.params.id,
+			uid = req.user._id;
+	var fields = {
+		eid: eid,
+		uid: uid
+	};
+
+	if (!req.files.file) {
+		return next("Fichier non renseigné");
+	}
+
+	req.app.db.models.Event.findById(eid, function(err, row) {
+		if (err || !row) {
+			return next(err || "Event not found");
+		}
+		register();
+	});
+
+	function register() {
+		req.app.db.models.EventRegister.findOne(fields, function(err, row) {
+			if (err) {
+				return next(err);
+			}
+			if (row) {
+				row.remove(function(err, row) {
+					if (err) {
+						return next(err);
+					}
+					done();
+				});
+			} else {
+				req.app.db.models.EventRegister.create(fields, function(err, row) {
+					if (err) {
+						return next(err);
+					}
+					done();
+				});
+			}
+		});
+	}
+
+	function done() {
+		req.body.root = "events";
+		req.body.event = req.params.id;
+		req.body.metaType = "event";
+
+		req.app.utils.Upload.OriginalAndMinified(req, res, next, { root: 'events', filepath: './'+req.files.file.path.replace('\\', '/') }, function(event_image) {
+
+			return res.json();
+		});
+	}
 }
 
 exports.delete = function(req, res, next) {

@@ -114,7 +114,10 @@ DELETE -> supprime
 ### Ensemble des routes
 
 ### me -> Retourne les informations concernant l'user connecté
-- `get('/me');`
+
+##### GET  /me
+
+
 ```json
 {
   "id": "54eb62cb998bc70c2463ab46",
@@ -132,15 +135,27 @@ DELETE -> supprime
 ```
 
 ### deleteMyAccount -> Efface le compte de l'utilisateur et toutes les données liées à celui-ci
-- `delete('/deleteMyAccount');`
 
-### users (Pour les users)
-- `get('/users/count');` nombre d'users total
-- `get('/users/:id');` ce user
-- `get('/users/:id/gallery');` les images postées par l'utilisateur
 
-### events (un défi)
-- `get('/events');`  utilisé pour récupérer la liste des évènements
+## Liste des requêtes pour un utilisateur
+
+##### GET  /users/count
+nombre d'users total
+
+##### GET  /users/:id
+Récupère le profil d'un utilisateur
+
+##### DELETE  /deleteMyAccount
+Efface le compte de l'utilisateur et toutes les données liées à celui-ci
+
+##### GET  /users/:id/gallery
+Liste les images postées par l'utilisateur
+
+## Liste des requêtes pour un défi
+
+##### GET  /events
+
+utilisé pour récupérer la liste des évènements
   - Liste des paramètres disponibles
     - `limit` permet de changer le nombre d'objets renvoyés (Défaut: 20)
     - `sort_by` permet de changer l'attribut servant à trier (Défaut: end)
@@ -173,11 +188,22 @@ DELETE -> supprime
 }
 ```
   - `has_more` vaut true si il reste des évènements à récupérer (utilisez alors `last_item`)
-- `get('/events/findOne');`
-- `get('/events/count');`
-- `get('/events/:id')`;
-- `get('/events/:id/exists');`
-- `post('/events');` créer un défi
+
+##### GET  /events/findOne
+
+
+##### GET  /events/count
+
+
+##### GET  /events/:id
+
+
+##### GET  /events/:id/exists
+
+
+##### POST  /events
+
+créer un défi
   - Fournissez dans le body :
     - `title` le titre du défi
     - `desc` la description du défi (optionnel)
@@ -187,49 +213,78 @@ DELETE -> supprime
     - `latLng[]` la longitude (optionnel)
     - `latLng` array json (optionnel)
   - Déclarer deux `latLng[]` enverra un tableau. Vous pouvez egalement faire latLng = array_json
-- `put('/events/:id');` met a jour ce défi (Tous les champs sont optionnels)
-  - Fournir dans le body (optionnel) :
+
+##### PUT  /events/:id
+
+met a jour ce défi (Tous les champs sont optionnels)
+  - Fournir dans le body :
     - `title` le titre du défi
-    - `desc` la description du défi (optionnel)
+    - `desc` la description du défi
     - `hashtag` les tags de recherche
-    - `place` l'adresse de l'evenement (optionnel)
-    - `latLng[]` la latitude (optionnel)
-    - `latLng[]` la longitude (optionnel)
-    - `latLng` array json (optionnel)
+    - `place` l'adresse de l'evenement
+    - `latLng[]` la latitude
+    - `latLng[]` la longitude
+    - ou `latLng` array json
   - Pour upload une image, la requete PUT doit être une requête multipart/form-data et fournir dans le body :
     - `file` le fichier a upload
-- `delete('/events/:id');` supprime ce défi
 
-#### Upload d'image
+##### POST  /events/:id/join
+Permet de participer à un challenge
+
+Content-Type: multipart/form-data
+Dans le body:
+  - `file` le fichier
+
+Le statusCode de la réponse sera 404 ou 500 en cas d'erreur, 200 en cas de succès
 
 
-### eventRegisters (liste des users enregistré a un défi) incomplet
-- `get('/eventregister/:id');`
-- `get('/eventregister/:id/exists');`
-- `post('/eventregister');`
-- `put('/eventregister/:id');`
-- `delete('/eventregister/:id');`
-
-schéma pour les events register->
-```json
-{
-    "event": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Event" },
-    "account": [{
-      "_id": { "type": "mongoose.Schema.Types.ObjectId", "reference vers l'objet": "Account" },
-      "conf": { "type": "Number", "default": "0" }
-    }]
-}
+##### GET  /events/:id/gallery
+Permet de recupérer la liste de toutes les images liées à un évènement
+```js
+[
+  {
+    "acc": {
+      "id": "54eb62cb998bc70c2463ab46",
+      "name": "Lilian Cahuzac",
+      "picture": "avatars/54ecb78d5d9162d825c28cb7.min.jpeg"
+    },
+    "original": "http://127.0.0.1:8080/media/avatars/54f8982438e399e0214ba4b5.png",
+    "minified": "http://127.0.0.1:8080/media/avatars/54f8982438e399e0214ba4b5.min.png"
+  },
+  ...
+]
 ```
 
-### badges (les badges)
-- `get('/badges');`
-- `get('/badges/findOne');`
-- `get('/badges/count');`
-- `get('/badges/:id');`
-- `get('/badges/:id/exists');`
-- `post('/badges');`
-- `put('/badges/:id');`
-- `delete('/badges/:id');`
+
+##### DELETE  /events/:id
+
+
+## eventRegisters (liste des users enregistré a un défi) incomplet
+
+##### GET  /eventregister/:id
+
+##### GET  /eventregister/:id/exists
+
+
+## badges (les badges)
+
+##### GET  /badges
+
+
+##### GET  /badges/findOne
+
+
+##### GET  /badges/count
+
+##### GET  /badges/:id
+
+##### GET  /badges/:id/exists
+
+##### POST  /badges
+
+##### PUT  /badges/:id
+
+##### DELETE  /badges/:id
 
 schéma pour un badge->
 ```json
@@ -240,15 +295,23 @@ schéma pour un badge->
 }
 ```
 
-### validations (validation des users par rapport a un défis) incomplet
-- `get('/validations');`
-- `get('/validations/findOne');`
-- `get('/validations/count');`
-- `get('/validations/:id');`
-- `get('/validations/:id/exists');`
-- `post('/validations');`
-- `put('/validations/:id');`
-- `delete('/validations/:id');`
+## validations (validation des users par rapport a un défis) incomplet
+
+##### GET  /validations
+
+##### GET  /validations/findOne
+
+##### GET  /validations/count
+
+##### GET  /validations/:id
+
+##### GET  /validations/:id/exists
+
+##### POST  /validations
+
+##### PUT  /validations/:id
+
+##### DELETE  /validations/:id
 
 # Testing
 

@@ -42,8 +42,7 @@ exports = module.exports = function(req, res, next, options, done) {
       , root: options.root
     };
     if (req.body.metaType) {
-      if (req.body.metaType === "avatar") { toCreate.metadata.type = "avatar"; }
-      else if (req.body.metaType === "event") { toCreate.metadata.type = "event"; }
+      toCreate.metadata.type = req.body.metaType;
     }
     if (req.body.event)
       toCreate.metadata.event = req.app.ms.Grid.tryParseObjectId(req.body.event);
@@ -66,7 +65,7 @@ exports = module.exports = function(req, res, next, options, done) {
   });
 
   workflow.on('minify', function(id) {
-    workflow.imgNameMin = workflow.imgName + '.min' + workflow.imgExt;
+    workflow.imgNameMin = workflow.imgName + '.min.' + workflow.imgExt;
 
     im.resize({
         srcPath: options.filepath

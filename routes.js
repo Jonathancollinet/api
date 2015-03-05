@@ -41,20 +41,21 @@ exports.Router = function(app, passport) {
   router.get('/events/count', require('./api/events/index').count);
   router.get('/events/:id', require('./api/events/index').findId);
   router.get('/events/:id/gallery', require('./api/events/index').gallery)
+  router.post('/events/:id/join', require('./api/events/index').join);
   router.get('/events/:id/exists', require('./api/events/index').exists);
   router.post('/events', require('./api/events/index').create);
   router.put('/events/:id', require('./api/events/index').updateId);
   router.delete('/events/:id', require('./api/events/index').delete);
 
   // eventRegisters
-  router.get('/eventregister', require('./api/eventRegister/index').listAll);
-  router.get('/eventregister/findOne', require('./api/eventRegister/index').findOne);
-  router.get('/eventregister/count', require('./api/eventRegister/index').count);
-  router.get('/eventregister/:id', require('./api/eventRegister/index').findId);
-  router.get('/eventregister/:id/exists', require('./api/eventRegister/index').exists);
-  router.post('/eventregister', require('./api/eventRegister/index').create);
-  router.put('/eventregister/:id', require('./api/eventRegister/index').updateId);
-  router.delete('/eventregister/:id', require('./api/eventRegister/index').delete);
+  // router.get('/eventregister', require('./api/eventRegister/index').listAll);
+  // router.get('/eventregister/findOne', require('./api/eventRegister/index').findOne);
+  // router.get('/eventregister/count', require('./api/eventRegister/index').count);
+  // router.get('/eventregister/:id', require('./api/eventRegister/index').findId);
+  // router.get('/eventregister/:id/exists', require('./api/eventRegister/index').exists);
+  // router.post('/eventregister', require('./api/eventRegister/index').create);
+  // router.put('/eventregister/:id', require('./api/eventRegister/index').updateId);
+  // router.delete('/eventregister/:id', require('./api/eventRegister/index').delete);
 
   // notifications
   router.get('/notifications', require('./api/notifications/index').listAll);
