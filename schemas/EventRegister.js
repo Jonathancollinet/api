@@ -3,7 +3,7 @@
 exports = module.exports = function(app, mongoose) {
   var EventRegisterSchema = new mongoose.Schema({
     eid: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
-    uid: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' }
+    uid: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
   });
   EventRegisterSchema.plugin(require('./plugins/paginate'));
   EventRegisterSchema.set('autoIndex', (app.get('env') === 'development'));

@@ -180,7 +180,8 @@ utilisé pour récupérer la liste des évènements
       "latLng": [],
       "hashtag": [],
       "desc": "",
-      "picture": ""
+      "picture": "",
+      "completed": true|false
     }
   ],
   "has_more": true,

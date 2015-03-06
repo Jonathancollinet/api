@@ -16,6 +16,8 @@ exports.listAll = function(req, res, next) {
 				model: req.app.db.models.Account
 			}
 	};
+	if (req.app.Config.filterFlux)
+		options.filters.end = { $gt: Date.now() };
 	if (req.query.sort_by) {
 		options.sort[req.query.sort_by] = req.query.sort_order ? parseInt(req.query.sort_order) : -1;
 	} else {
@@ -23,17 +25,53 @@ exports.listAll = function(req, res, next) {
 	}
 	if (req.query.last_item) {
 		if (options.sort._id == -1) {
-			options.filters = { _id: { $lt: req.query.last_item } };
+			options.filters._id = { $lt: req.query.last_item };
 		} else {
-			options.filters = { _id: { $gt: req.query.last_item } };
+			options.filters._id = { $gt: req.query.last_item };
 		}
 	}
-	req.app.db.models.Event.paginate(options, function(err, row) {
+	req.app.db.models.Event.paginate(options, function(err, rows) {
 		if (err)
 			return next(err);
+
 		if (req.query.sort_order && parseInt(req.query.sort_order) === 1)
-			row.items.reverse();
-		res.json(row);
+			rows.items.reverse();
+
+		req.app.db.models.EventRegister.find({ uid: req.user._id }).lean().exec(function(err, reg) {
+			if (err)
+				return next(err);
+
+			for (var i in rows.items) {
+				for (var j in reg) {
+					if (reg[j].eid.toString() === rows.items[i]._id.toString())
+						rows.items[i].completed = true;
+				}
+				if (rows.items[i].completed === undefined)
+					rows.items[i].completed = false;
+			}
+			return res.json(rows);
+		});
+		// function done(datas) {
+		// 	return res.json(datas);
+		// }
+		//
+		// function execQuery(eid, uid, cb) {
+		// 	req.app.db.models.EventRegister
+		// 	cb(true);
+		// }
+		//
+		// function prepareQuery(_rows, i, cb) {
+		// 	if (!_rows[i])
+		// 		return cb(_rows);
+		// 	execQuery(_rows[i]._id, req.user._id, function(status) {
+		// 		_rows[i].completed = status;
+		// 		prepareQuery(_rows, ++i);
+		// 	});
+		// }
+		//
+		// if (rows[0])
+		// 	return prepareQuery(rows, 0, send);
+		// done(rows);
 	});
 }
 
