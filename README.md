@@ -190,6 +190,9 @@ utilisé pour récupérer la liste des évènements
 ```
   - `has_more` vaut true si il reste des évènements à récupérer (utilisez alors `last_item`)
 
+Pour récupérer les nouveaux évènements : GET /events?last_id=FIRST_ID_OF_YOUR_LIST&sort_order=1
+La valeur de last_item contiendra le premier element de la liste dans ce cas la
+
 ##### GET  /events/findOne
 
 
