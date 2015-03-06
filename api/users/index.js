@@ -1,7 +1,7 @@
 exports.me = function(req, res, next) {
-	req.app.ms.Grid.find({ 'metadata.user': req.user._id, root: 'events'}, function(err, files) {
-	    res.json({
-		id:req.user._id,
+	req.app.ms.Grid.find({ 'metadata.user': req.user._id, 'metadata.type': 'event', root: 'events'}, function(err, files) {
+    res.json({
+			id: req.user._id,
 			provider: req.facebook ? 'facebook' : 'google',
 			email: req.user.email,
 			picture: (/^(http).*$/.test(req.user.roles.account.picture) ? '' : req.app.Config.mediaserverUrl) + req.user.roles.account.picture,
@@ -27,7 +27,7 @@ exports.history = function(req, res, next) {
 exports.gallery = function(req, res, next) {
 	var workflow = new (require('events').EventEmitter)();
 
-	req.app.ms.Grid.find({ 'metadata.user': req.app.ms.Grid.tryParseObjectId(req.params.id || req.user._id), root: "events" }, function(err, found) {
+	req.app.ms.Grid.find({ 'metadata.user': req.app.ms.Grid.tryParseObjectId(req.params.id || req.user._id), 'metadata.type': 'event', root: 'events' }, function(err, found) {
 		if (err) { return next(err); }
 		var filesArray = [];
 		workflow.on('end', function() {
