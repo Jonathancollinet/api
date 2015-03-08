@@ -8,7 +8,12 @@ exports.listAll = function(req, res, next) {
 		for (var i in validated) {
 			erValidated.push(validated[i].erid);
 		}
-		req.app.db.models.EventRegister.find({ uid: { $ne: req.user._id }, _id: { $nin: erValidated } }).populate('uid').populate('eid').lean().exec(function(err, eventRes) {
+		var select = {
+			_id: { $nin: erValidated }
+		};
+		if (!req.app.Config.showOwnEventValidation)
+			select.uid = { $ne: req.user._id };
+		req.app.db.models.EventRegister.find(select).populate('uid').populate('eid').lean().exec(function(err, eventRes) {
 			if (err)
 				return next(err);
 			var erToValidate = [];
@@ -25,7 +30,14 @@ exports.listAll = function(req, res, next) {
 					req.app.db.models.Account.populate(eventRes, 'eid.acc.roles.account', function(err, eventRes) {
 						if (err)
 							return next(err);
-						req.app.ms.Grid.find({ 'metadata.type': 'event', 'metadata.event': { $in: erToValidate }, 'metadata.user': { $ne: req.user._id }, root: "events" }, function(err, rows) {
+						select = {
+							'metadata.type': 'event',
+							'metadata.event': { $in: erToValidate },
+							root: 'events'
+						};
+						if (!req.app.Config.showOwnEventValidation)
+							select['metadata.user'] = { $ne: req.user._id };
+						req.app.ms.Grid.find(select, function(err, rows) {
 							var toSend = [];
 							for (var i in eventRes) {
 								if (eventRes[i].eid && eventRes[i].uid) {
