@@ -60,9 +60,18 @@ exports = module.exports = function(app, passport) {
         app.db.models.User.findById(token.user).populate('roles.account').exec(function(err, user) {
           if (err) { return done(err); }
           if (!user || !user.roles.account) { return done(null, false, { message: 'Unknowm user' }); }
+          app.db.models.Badge.populate(user, 'roles.account.badges', function(err, user) {
+            if (err) { return done(err); }
 
-          var info = { scope: '*' };
-          done(null, user, info);
+            for (var i in user.roles.account.badges) {
+              user.roles.account.badges[i].__v = undefined;
+              user.roles.account.badges[i]._id = undefined;
+              user.roles.account.badges[i].picture = app.Config.mediaserverUrl + user.roles.account.badges[i].picture;
+            }
+
+            var info = { scope: '*' };
+            done(null, user, info);
+          });
         });
       });
     }

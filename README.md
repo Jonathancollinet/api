@@ -130,7 +130,15 @@ DELETE -> supprime
   "verified": true,
   "images": 2,
   "friends": 0,
-  "badges": 0
+  "badges": [
+    {
+      "name": "the name",
+      "desc": "the desc",
+      "title": "the title",
+      "picture": "http://127.0.0.1:8080/media/badges/54fc86e391c284dc2153568a.jpeg"
+    },
+    ...
+  ]
 }
 ```
 

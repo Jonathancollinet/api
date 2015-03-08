@@ -14,7 +14,7 @@ exports.me = function(req, res, next) {
 				verified: req.user.roles.account.isVerified == 'yes' ? true : false,
 				images: files.length,
 				friends: 0,
-				badges: 0,
+				badges: req.user.roles.account.badges, //req.user.roles.account.badges ? req.user.roles.account.badges.length : 0
 				validations: validations
 			});
 		});
@@ -51,9 +51,10 @@ exports.gallery = function(req, res, next) {
 						acc: {
 								id: user._id
 							, name: user.roles.account.name.full
-							, picture: user.roles.account.picture
+							, picture: req.app.Config.mediaserverUrl + user.roles.account.picture
 						}
-					, original: req.app.Config.mediaserverUrl + 'events/' + explod[0]
+					,
+					original: req.app.Config.mediaserverUrl + 'events/' + explod[0]
 					, minified: req.app.Config.mediaserverUrl + 'events/' + explod[1] + '.min.' + explod[2]
 				};
 				filesArray.push(toPush);
@@ -81,12 +82,22 @@ exports.findOne = function(req, res, next) {
 	req.app.db.models.User.findById(req.params.id).populate("roles.account").exec(function(err, row) {
 		if (err)
 			return next(err);
-		var ret = {
-				id: row._id
-			, name: row.roles.account.name.full
-			, picture: req.app.Config.mediaserverUrl + row.roles.account.picture
-		};
-		res.json(ret);
+		req.app.db.models.Badge.populate(row, 'roles.account.badges', function(err, row) {
+			if (err)
+				return next(err);
+			for (var i in row.roles.account.badges) {
+				row.roles.account.badges[i].__v = undefined;
+				row.roles.account.badges[i]._id = undefined;
+				row.roles.account.badges[i].picture = req.app.Config.mediaserverUrl + row.roles.account.badges[i].picture;
+			}
+			var ret = {
+					id: row._id
+				, name: row.roles.account.name.full
+				, picture: req.app.Config.mediaserverUrl + row.roles.account.picture
+				, badges: row.roles.account.badges
+			};
+			res.json(ret);
+		});
 	});
 }
 
@@ -98,18 +109,6 @@ exports.count = function(req, res, next) {
 	});
 }
 
-exports.findId = function(req, res, next) {
-	req.app.db.models.User.findById(req.params.id).populate("roles.account").exec(function(err, row) {
-		if (err)
-			return next(err);
-		var ret = {
-				id: row._id
-			, name: row.roles.account.name.full
-			, picture: req.app.Config.mediaserverUrl + row.roles.account.picture
-		};
-		res.json(ret);
-	});
-}
 
 exports.exists = function(req, res, next) {
 	req.app.db.models.User.findById(req.params.id).exec(function(err, row) {

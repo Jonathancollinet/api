@@ -26,7 +26,7 @@ exports.Router = function(app, passport) {
   // router.get('/users', require('./api/users/index').listAll);
   // router.get('/users/findOne', require('./api/users/index').findOne);
   router.get('/users/count', require('./api/users/index').count);
-  router.get('/users/:id', require('./api/users/index').findId);
+  router.get('/users/:id', require('./api/users/index').findOne);
   router.get('/users/:id/gallery', require('./api/users/index').gallery);
   // router.get('/users/:id/exists', require('./api/users/index').exists);
   // router.post('/users', require('./api/users/index').create);
