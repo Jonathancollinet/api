@@ -60,4 +60,4 @@ exports.oauth = {
 
 exports.cookieSecret = 'asd1$-lk5D-^kl*6-/asd&#';
 exports.gzip = true;
-exports.filterFlux = false;
+exports.filterFlux = true;

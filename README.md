@@ -299,23 +299,39 @@ schéma pour un badge->
 }
 ```
 
-## validations (validation des users par rapport a un défis) incomplet
+## validations (validation des users par rapport a un défis)
 
 ##### GET  /validations
+```json
+[
+  {
+    "id": "54f8de8d21ee7a2421b95c14",
+    "event": {
+      "id": "54e8be68f446608020e7db57",
+      "title": "Contoso Bank",
+      "desc": "Id dolor enim duis ipsum mollit sunt anim quis deserunt do id. Voluptate officia velit nulla laboris cil",
+      "user": {
+        "id": "54e8ba4d1ce4d3c0188ae89d",
+        "name": "Lilian Cahuzac",
+        "picture": "http://127.0.0.1:8080/media/avatars/54e8ba4e1ce4d3c0188ae89e.min.jpeg"
+      }
+    },
+    "by": {
+      "id": "54eb62cb998bc70c2463ab46",
+      "name": "Lilian Cahuzac",
+      "picture": "http://127.0.0.1:8080/media/avatars/54fb32f23aab8d941e39a64c.min.jpeg"
+    },
+    "picture": "http://127.0.0.1:8080/media/events/54f8de8d21ee7a2421b95c15.png"
+  },
+  ...
+]
+```
 
-##### GET  /validations/findOne
-
-##### GET  /validations/count
-
-##### GET  /validations/:id
-
-##### GET  /validations/:id/exists
-
-##### POST  /validations
-
-##### PUT  /validations/:id
-
-##### DELETE  /validations/:id
+##### GET  /validations/:id/(upvote|downvote)
+```js
+GET /validations/54f8de8d21ee7a2421b95c14/upvote  // Upvote(accepte) la photo prise par l'utilisateur
+GET /validations/54f8de8d21ee7a2421b95c14/downvote  // Downvote(refuse) la photo prise par l'utilisateur
+```
 
 # Testing
 

@@ -1,23 +1,33 @@
 exports.me = function(req, res, next) {
-	req.app.ms.Grid.find({ 'metadata.user': req.user._id, 'metadata.type': 'event', root: 'events'}, function(err, files) {
-    res.json({
-			id: req.user._id,
-			provider: req.facebook ? 'facebook' : 'google',
-			email: req.user.email,
-			picture: (/^(http).*$/.test(req.user.roles.account.picture) ? '' : req.app.Config.mediaserverUrl) + req.user.roles.account.picture,
-			name: req.user.roles.account.name.full,
-			first_name: req.user.roles.account.name.first,
-			last_name: req.user.roles.account.name.last,
-			verified: req.user.roles.account.isVerified == 'yes' ? true : false,
-			images: files.length,
-			friends: 0,
-			badges: 0
+	function sendRes(validations) {
+		req.app.ms.Grid.find({ 'metadata.user': req.user._id, 'metadata.type': 'event', root: 'events'}, function(err, files) {
+			if (err)
+				return next(err);
+	    res.json({
+				id: req.user._id,
+				provider: req.facebook ? 'facebook' : 'google',
+				email: req.user.email,
+				picture: (/^(http).*$/.test(req.user.roles.account.picture) ? '' : req.app.Config.mediaserverUrl) + req.user.roles.account.picture,
+				name: req.user.roles.account.name.full,
+				first_name: req.user.roles.account.name.first,
+				last_name: req.user.roles.account.name.last,
+				verified: req.user.roles.account.isVerified == 'yes' ? true : false,
+				images: files.length,
+				friends: 0,
+				badges: 0,
+				validations: validations
+			});
 		});
+	}
+	req.app.db.models.Validation.find({ uid: req.user._id }).exec(function(err, validations) {
+		if (err)
+			return next(err);
+		sendRes(validations.length);
 	});
 }
 
 exports.history = function(req, res, next) {
-	req.app.db.models.Event.find({acc: {_id: req.user._id}}).exec(function(err, row) {
+	req.app.db.models.Event.find({ acc: req.user._id }).exec(function(err, row) {
 		if (err)
 			return next(err);
 		res.json({data: row});

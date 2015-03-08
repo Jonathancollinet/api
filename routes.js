@@ -79,13 +79,15 @@ exports.Router = function(app, passport) {
 
   // validations
   router.get('/validations', require('./api/validations/index').listAll);
-  router.get('/validations/findOne', require('./api/validations/index').findOne);
-  router.get('/validations/count', require('./api/validations/index').count);
-  router.get('/validations/:id', require('./api/validations/index').findId);
-  router.get('/validations/:id/exists', require('./api/validations/index').exists);
-  router.post('/validations', require('./api/validations/index').create);
-  router.put('/validations/:id', require('./api/validations/index').updateId);
-  router.delete('/validations/:id', require('./api/validations/index').delete);
+  router.get('/validations/:id/upvote', require('./api/validations/index').upVote);
+  router.get('/validations/:id/downvote', require('./api/validations/index').downVote);
+  // router.get('/validations/findOne', require('./api/validations/index').findOne);
+  // router.get('/validations/count', require('./api/validations/index').count);
+  // router.get('/validations/:id', require('./api/validations/index').findId);
+  // router.get('/validations/:id/exists', require('./api/validations/index').exists);
+  // router.post('/validations', require('./api/validations/index').create);
+  // router.put('/validations/:id', require('./api/validations/index').updateId);
+  // router.delete('/validations/:id', require('./api/validations/index').delete);
 
   // eventRegisters
   router.get('/eventRegister', require('./api/eventRegister/index').listAll);
