@@ -33,7 +33,7 @@ exports.listAll = function(req, res, next) {
 						select = {
 							'metadata.type': 'event',
 							'metadata.event': { $in: erToValidate },
-							root: 'events'
+							root: 'events.min'
 						};
 						if (!req.app.Config.showOwnEventValidation)
 							select['metadata.user'] = { $ne: req.user._id };
