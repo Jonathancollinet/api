@@ -6,7 +6,7 @@ exports.name = 'Adok - API';
 exports.host = '127.0.0.1';
 exports.port = process.env.API_PORT || 8080;
 exports.url = 'http://' + exports.host + ':' + exports.port + '/';
-exports.mediaserverUrl = 'http://127.0.0.1:8080/media/';
+exports.mediaserverUrl = 'http://api.adok-web.fr/media/';
 exports.ssl = {
   enabled: false,
   key: fs.readFileSync('ssl/certificate.key', 'utf8'),
@@ -61,4 +61,4 @@ exports.oauth = {
 exports.cookieSecret = 'asd1$-lk5D-^kl*6-/asd&#';
 exports.gzip = true;
 exports.filterFlux = true;
-exports.showOwnEventValidation = true;
+exports.showOwnEventValidation = false;
