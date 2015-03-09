@@ -96,7 +96,7 @@ exports.upVote = function(req, res, next) {
 				eid: erRow.eid,
 				uid: req.user._id,
 				erid: req.params.id,
-				isValidate: true
+				isValide: true
 			};
 			req.app.db.models.Validation.create(fields, function(err, row) {
 				row.__v = undefined;
@@ -124,7 +124,7 @@ exports.downVote = function(req, res, next) {
 				eid: erRow.eid,
 				uid: req.user._id,
 				erid: req.params.id,
-				isValidate: false
+				isValide: false
 			};
 			req.app.db.models.Validation.create(fields, function(err, row) {
 				row.__v = undefined;
