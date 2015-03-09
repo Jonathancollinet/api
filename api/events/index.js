@@ -218,7 +218,8 @@ exports.join = function(req, res, next) {
 			uid = req.user._id;
 	var fields = {
 		eid: eid,
-		uid: uid
+		uid: uid,
+		completed: true
 	};
 
 	if (!req.files.file) {
@@ -238,7 +239,17 @@ exports.join = function(req, res, next) {
 				return done(err);
 			}
 			if (row) {
-				return done("Vous avez déjà participé à cet évènement");
+				if (row.completed)
+					return done("Vous avez déjà participé à cet évènement");
+				else {
+					row.completed = true;
+					row.save(function(err, row) {
+						if (err) {
+							return done(err);
+						}
+						done();
+					});
+				}
 			} else {
 				req.app.db.models.EventRegister.create(fields, function(err, row) {
 					if (err) {
