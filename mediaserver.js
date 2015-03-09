@@ -19,11 +19,11 @@ exports.Router = function(app, passport) {
       if (err) { return next(err); }
       if (!stream) { return res.status(404).send('Not found'); }
 
-      var statusCode = req.app.ms.Grid.setCacheControl(stream.metadatas, req, res);
-      res.status(statusCode)
-      if (statusCode == 304) {
-        return res.send();
-      }
+      // var statusCode = req.app.ms.Grid.setCacheControl(stream.metadatas, req, res);
+      // res.status(statusCode)
+      // if (statusCode == 304) {
+      //   return res.send();
+      // }
       var acceptEncoding = req.headers['accept-encoding'] && (req.headers['accept-encoding'].split(', ').indexOf('gzip') != -1);
       var gzip = req.app.Config.gzip && acceptEncoding;
       if (!gzip) {
